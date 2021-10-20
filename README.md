@@ -4,6 +4,7 @@
 
 *  [Algorithme de remplissage par diffusion](https://fr.wikipedia.org/wiki/Algorithme_de_remplissage_par_diffusion)
 * [Thèse Generation procédurale de monde](https://tel.archives-ouvertes.fr/tel-00841373/document)
+* [Courbe gaussiene](https://fr.wikipedia.org/wiki/Fonction_gaussienne)
 
 ## Parametres
 
@@ -23,3 +24,6 @@
     * en dehors du rayon de la ville
   
   
+plusieurs centre ville
+utiliser une courbe gaussienne pour la densité des maisons/hauteur des batiments
+height map
