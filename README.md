@@ -5,7 +5,8 @@
 *  [Algorithme de remplissage par diffusion](https://fr.wikipedia.org/wiki/Algorithme_de_remplissage_par_diffusion)
 * [Thèse Generation procédurale de monde](https://tel.archives-ouvertes.fr/tel-00841373/document)
 * [Courbe gaussiene](https://fr.wikipedia.org/wiki/Fonction_gaussienne)
-* [Marching square](https://catlikecoding.com/unity/tutorials/marching-squares-series/)
+* [Marching square](https://fr.wikipedia.org/wiki/Marching_squares)
+* [Marching square in Unity](https://catlikecoding.com/unity/tutorials/marching-squares-series/)
 
 ## Parametres
 
