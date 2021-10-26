@@ -42,25 +42,25 @@ public class CityPlacement : MonoBehaviour
             {
                 //yield return new WaitForSeconds(fireRate);
                 var pix = pixels[y * width + x];
-                //var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                //go.transform.position = Vector3.zero + new Vector3(x, 0, y);
-                //go.transform.parent = transform;
+				var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+				go.transform.position = Vector3.zero + new Vector3(x, 0, y);
+				go.transform.parent = transform;
 
-                //if (!go.TryGetComponent(out MeshRenderer meshRenderer))
-                //{
-                //    Debug.Log($"No mesh renderer found");
-                //}
+				if (!go.TryGetComponent(out MeshRenderer meshRenderer))
+				{
+					Debug.Log($"No mesh renderer found");
+				}
 
-                //Cubes.Add(go);
+				//Cubes.Add(go);
 
-                if (pix == Color.white)
+				if (pix == Color.white)
                 {
                     pixelList.Add(y * width + x);
-                    //meshRenderer.material.color = Color.white;
+                    meshRenderer.material.color = Color.white;
                 }
                 else
                 {
-                    //meshRenderer.material.color = Color.black;
+                    meshRenderer.material.color = Color.black;
                     if (oldPix == Color.white)
                     {
                         Blocs.Add(new Bloc { Pixels = pixelList.ToArray() });

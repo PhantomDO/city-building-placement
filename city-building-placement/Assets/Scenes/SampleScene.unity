@@ -309,6 +309,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1649007180}
   - component: {fileID: 1649007179}
+  - component: {fileID: 1649007181}
   m_Layer: 0
   m_Name: City
   m_TagString: Untagged
@@ -323,13 +324,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1649007178}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d08b51640c3969b46b9a3dc5722b1238, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RoadMap: {fileID: 2800000, guid: 0942e7a4bc2d91847acc5a6a070ee1fa, type: 3}
+  RoadMap: {fileID: 2800000, guid: fe235d52b39cf0e458378a9ea4e45153, type: 3}
   Blocs: []
+  Cubes: []
+  fireRate: 0.02
 --- !u!4 &1649007180
 Transform:
   m_ObjectHideFlags: 0
@@ -344,3 +347,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1649007181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1649007178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60feafc14ed745f4ea0a4ac8524e9852, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  superficyRadius: 200
+  etendue: 50
+  position: {x: 500, y: 500}
