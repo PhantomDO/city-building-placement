@@ -5,11 +5,7 @@ using UnityEngine;
 public class CityBuild : MonoBehaviour
 {
 
-    public int superficyRadius; //city radius
-    public int etendue;
-    public int densite;
-    public Vector2 position;
-    public float partieCentreVille;
+    public List<CityClass> epicentres;
 
     private CityZone[,] mapZone = new CityZone[1029, 1029]; //must be a multiple of 3
     private typeBuilding[,] mapBuilding = new typeBuilding[1029, 1029]; //must be a multiple of 3
@@ -65,24 +61,28 @@ public class CityBuild : MonoBehaviour
         {
             for (int j = 0; j <= mapBuilding.GetUpperBound(1); j++)
             {
-                if (mapBuilding[i,j] == typeBuilding.Maison)
+                if (mapZone[i, j] != CityZone.NaN)
                 {
-                    Gizmos.color = new Color(0, 1, 0, 1f);
-                    Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1, 1, 1));
-                }else if (mapBuilding[i, j] == typeBuilding.PetitImmeuble)
-                {
-                    Gizmos.color = new Color(1, 0, 0, 1f);
-                    Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1.2f, 2, 1.2f));
-                }
-                else if (mapBuilding[i, j] == typeBuilding.Immeuble)
-                {
-                    Gizmos.color = new Color(0, 0, 1, 1f);
-                    Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1.5f, 4, 1.5f));
-                }
-                else if (mapBuilding[i, j] == typeBuilding.GrosImmeuble)
-                {
-                    Gizmos.color = new Color(1, 1, 0, 1f);
-                    Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(2f, 6, 2f));
+                    if (mapBuilding[i, j] == typeBuilding.Maison)
+                    {
+                        Gizmos.color = new Color(0, 1, 0, 1f);
+                        Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1, 1, 1));
+                    }
+                    else if (mapBuilding[i, j] == typeBuilding.PetitImmeuble)
+                    {
+                        Gizmos.color = new Color(1, 0, 0, 1f);
+                        Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1f, 2, 1f));
+                    }
+                    else if (mapBuilding[i, j] == typeBuilding.Immeuble)
+                    {
+                        Gizmos.color = new Color(0, 0, 1, 1f);
+                        Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1f, 4, 1f));
+                    }
+                    else if (mapBuilding[i, j] == typeBuilding.GrosImmeuble)
+                    {
+                        Gizmos.color = new Color(1, 1, 0, 1f);
+                        Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1f, 6, 1f));
+                    }
                 }
             }
         }
@@ -98,29 +98,35 @@ public class CityBuild : MonoBehaviour
     public enum typeBuilding : int
     {
         NaN = 0,
-        Maison = 1, //zone périurbaine uniquement
-        PetitImmeuble = 3, //zone périurbaine
-        Immeuble = 6, //centre ville
-        GrosImmeuble = 9 //centre ville uniquement
+        Maison = 1,
+        PetitImmeuble = 3, 
+        Immeuble = 6, 
+        GrosImmeuble = 9 
     }
     public void createCity()
     {
         float x, y;
-		for (int i = 0; i < superficyRadius; i+=1)
+		foreach (var ville in epicentres)
 		{
-            for (float theta = 0; theta < 2 * Mathf.PI; theta += 0.01f)
+            for (int i = 0; i < ville.superficyRadius; i += 1)
             {
-                x = position.x + i * Mathf.Cos(theta);
-                y = position.y + i * Mathf.Sin(theta);
-                x = (int)x;
-                y = (int)y;
-                if (x >= 0 && x < 1000 && y >= 0 && y < 1000){
-                    if (Random.Range(0, 100) < loiNormale(i, 0)*densite)
+                for (float theta = 0; theta < 2 * Mathf.PI; theta += 0.01f)
+                {
+                    x = ville.position.x + i * Mathf.Cos(theta);
+                    y = ville.position.y + i * Mathf.Sin(theta);
+                    x = (int)x;
+                    y = (int)y;
+                    if (x >= 0 && x < 1000 && y >= 0 && y < 1000)
                     {
-                        if(i<superficyRadius*partieCentreVille)
-                            mapZone[(int)x, (int)y] = CityZone.CentreVille;
-                        else
-                            mapZone[(int)x, (int)y] = CityZone.Residentiel;
+                        if (Random.Range(0, 100) < loiNormale(i, 0, ville.etendue) * ville.densite)
+                        {
+                            if (i < ville.superficyRadius * ville.partieCentreVille)
+                                mapZone[(int)x, (int)y] = CityZone.CentreVille;
+                            else if (mapZone[(int)x, (int)y] == CityZone.CentreVille) //déjà un centre ville d'un autre épicentre
+                                continue;
+                            else
+                                mapZone[(int)x, (int)y] = CityZone.Residentiel;
+                        }
                     }
                 }
             }
@@ -140,19 +146,51 @@ public class CityBuild : MonoBehaviour
 					}
 				}
                 if (count == 9)
-                    mapBuilding[i + 1, j + 1] = typeBuilding.GrosImmeuble;
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        for (int l = 0; l < 3; l++)
+                        {
+                            mapBuilding[i + k, j + l] = typeBuilding.GrosImmeuble;
+                        }
+                    }
+                }
                 else if (count >= 6)
-                    mapBuilding[i + 1, j + 1] = typeBuilding.Immeuble;
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        for (int l = 0; l < 3; l++)
+                        {
+                            mapBuilding[i + k, j + l] = typeBuilding.Immeuble;
+                        }
+                    }
+                }
                 else if (count >= 3)
-                    mapBuilding[i + 1, j + 1] = typeBuilding.PetitImmeuble;
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        for (int l = 0; l < 3; l++)
+                        {
+                            mapBuilding[i + k, j + l] = typeBuilding.PetitImmeuble;
+                        }
+                    }
+                }
                 else if (count >= 1)
-                    mapBuilding[i + 1, j + 1] = typeBuilding.Maison;
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        for (int l = 0; l < 3; l++)
+                        {
+                            mapBuilding[i + k, j + l] = typeBuilding.Maison;
+                        }
+                    }
+                }
             }
         }
     }
 
 
-    private float loiNormale(float x, float esperance)
+    private float loiNormale(float x, float esperance, float etendue)
     {
         //esperance = centre de la courbe
         return (1 / (etendue * Mathf.Sqrt(2 * Mathf.PI))) * Mathf.Exp(-0.5f * Mathf.Pow(((x - esperance) / etendue), 2));
