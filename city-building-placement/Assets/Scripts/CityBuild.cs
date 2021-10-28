@@ -41,7 +41,8 @@ public class CityBuild : MonoBehaviour
     }
 	void OnDrawGizmos()
     {
-
+        /*
+        //zone
         for (int i = 0; i <= mapZone.GetUpperBound(0); i++)
         {
             for (int j = 0; j <= mapZone.GetUpperBound(1); j++)
@@ -58,16 +59,33 @@ public class CityBuild : MonoBehaviour
                 }
             }
 		}
-        /*
-        for (int i = 1; i <= map.GetUpperBound(0); i+=3)
+        */
+        //building
+        for (int i = 0; i <= mapBuilding.GetUpperBound(0); i++)
         {
-            for (int j = 1; j <= map.GetUpperBound(1); j+=3)
+            for (int j = 0; j <= mapBuilding.GetUpperBound(1); j++)
             {
-                Gizmos.color = new Color(0, 1, 1, 0.2f);
-                Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(3, 1, 3));
+                if (mapBuilding[i,j] == typeBuilding.Maison)
+                {
+                    Gizmos.color = new Color(0, 1, 0, 1f);
+                    Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1, 1, 1));
+                }else if (mapBuilding[i, j] == typeBuilding.PetitImmeuble)
+                {
+                    Gizmos.color = new Color(1, 0, 0, 1f);
+                    Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1.2f, 2, 1.2f));
+                }
+                else if (mapBuilding[i, j] == typeBuilding.Immeuble)
+                {
+                    Gizmos.color = new Color(0, 0, 1, 1f);
+                    Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1.5f, 4, 1.5f));
+                }
+                else if (mapBuilding[i, j] == typeBuilding.GrosImmeuble)
+                {
+                    Gizmos.color = new Color(1, 1, 0, 1f);
+                    Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(2f, 6, 2f));
+                }
             }
         }
-        */
     }
 
     public enum CityZone : int
@@ -81,9 +99,9 @@ public class CityBuild : MonoBehaviour
     {
         NaN = 0,
         Maison = 1, //zone périurbaine uniquement
-        PetitImmeuble = 2, //zone périurbaine
-        Immeuble = 3, //centre ville
-        GrosImmeuble = 4 //centre ville uniquement
+        PetitImmeuble = 3, //zone périurbaine
+        Immeuble = 6, //centre ville
+        GrosImmeuble = 9 //centre ville uniquement
     }
     public void createCity()
     {
@@ -121,12 +139,14 @@ public class CityBuild : MonoBehaviour
                             count++;
 					}
 				}
-                switch (count)
-                {
-                    case 0:
-                        break;
-
-                }
+                if (count == 9)
+                    mapBuilding[i + 1, j + 1] = typeBuilding.GrosImmeuble;
+                else if (count >= 6)
+                    mapBuilding[i + 1, j + 1] = typeBuilding.Immeuble;
+                else if (count >= 3)
+                    mapBuilding[i + 1, j + 1] = typeBuilding.PetitImmeuble;
+                else if (count >= 1)
+                    mapBuilding[i + 1, j + 1] = typeBuilding.Maison;
             }
         }
     }
