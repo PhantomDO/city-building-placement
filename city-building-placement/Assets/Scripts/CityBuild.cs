@@ -7,8 +7,14 @@ public class CityBuild : MonoBehaviour
 
     public List<CityClass> epicentres;
 
-    private CityZone[,] mapZone = new CityZone[1029, 1029]; //must be a multiple of 3
-    private typeBuilding[,] mapBuilding = new typeBuilding[1029, 1029]; //must be a multiple of 3
+    [Range(0, 100)] public int parcDensity = 15;
+    [Range(0, 100)] public int etangDensity = 20;
+
+    [SerializeField] private List<Vector2Int> parcs;
+    [SerializeField] private List<Vector2Int> etangs;
+    
+    private CityZone[,] mapZone = new CityZone[129, 129]; //must be a multiple of 3
+    private typeBuilding[,] mapBuilding = new typeBuilding[129, 129]; //must be a multiple of 3
 
     // Start is called before the first frame update
     void Start()
@@ -21,48 +27,38 @@ public class CityBuild : MonoBehaviour
                 mapBuilding[i, j] = typeBuilding.NaN;
             }
         }
+        createRoads(4);
         createCity();
     }
 	private void OnValidate()
 	{
-		for (int i = 0; i <= mapZone.GetUpperBound(0); i++)
-		{
-			for (int j = 0; j <= mapZone.GetUpperBound(1); j++)
-			{
-                mapZone[i, j] = CityZone.NaN;
-                mapBuilding[i, j] = typeBuilding.NaN;
-            }
-		}
-        createCity();
-    }
-	void OnDrawGizmos()
-    {
-        /*
-        //zone
         for (int i = 0; i <= mapZone.GetUpperBound(0); i++)
         {
             for (int j = 0; j <= mapZone.GetUpperBound(1); j++)
             {
-				if (mapZone[i,j] == CityZone.CentreVille)
-				{
-                    Gizmos.color = new Color(1, 0, 0, 1f);
-                    Gizmos.DrawCube(new Vector3(i,0,j), new Vector3(1, 1, 1));
-                }
-                else if (mapZone[i, j] == CityZone.Residentiel)
-                {
-                    Gizmos.color = new Color(0, 1, 0, 1f);
-                    Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1, 1, 1));
-                }
+                mapZone[i, j] = CityZone.NaN;
+                mapBuilding[i, j] = typeBuilding.NaN;
             }
-		}
-        */
-        //building
-        for (int i = 0; i <= mapBuilding.GetUpperBound(0); i++)
+        }
+        createRoads(4);
+        createCity();
+    }
+	void OnDrawGizmos()
+    {
+        for (int i = 0; i <= mapZone.GetUpperBound(0); i++)
         {
-            for (int j = 0; j <= mapBuilding.GetUpperBound(1); j++)
+            for (int j = 0; j <= mapZone.GetUpperBound(1); j++)
             {
+                if (mapZone[i, j] == CityZone.Road)
+                {
+                    Gizmos.color = Color.black;
+                    Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1, 1, 1));
+                    continue;
+                }
+
                 if (mapZone[i, j] != CityZone.NaN)
                 {
+
                     if (mapBuilding[i, j] == typeBuilding.Maison)
                     {
                         Gizmos.color = new Color(0, 1, 0, 1f);
@@ -88,9 +84,17 @@ public class CityBuild : MonoBehaviour
         }
     }
 
+    public enum RuralZone : int
+    {
+        Nan = -1,
+        Etang = 0,
+        Parc = 1
+    }
+
     public enum CityZone : int
     {
         NaN = -1,
+        Road = 0,
         CentreVille = 1,
         Residentiel = 2,
         Parc = 3,
@@ -99,9 +103,9 @@ public class CityBuild : MonoBehaviour
     {
         NaN = 0,
         Maison = 1,
-        PetitImmeuble = 3, 
-        Immeuble = 6, 
-        GrosImmeuble = 9 
+        PetitImmeuble = 3,
+        Immeuble = 6,
+        GrosImmeuble = 9 //centre ville uniquement
     }
     public void createCity()
     {
@@ -116,7 +120,7 @@ public class CityBuild : MonoBehaviour
                     y = ville.position.y + i * Mathf.Sin(theta);
                     x = (int)x;
                     y = (int)y;
-                    if (x >= 0 && x < 1000 && y >= 0 && y < 1000)
+                    if (x >= 0 && x < mapZone.GetLength(0) && y >= 0 && y < mapZone.GetLength(1))
                     {
                         if (Random.Range(0, 100) < loiNormale(i, 0, ville.etendue) * ville.densite)
                         {
@@ -131,6 +135,7 @@ public class CityBuild : MonoBehaviour
                 }
             }
         }
+        
         //création building
         for (int i = 0; i <= mapZone.GetUpperBound(0); i += 3)
         {
@@ -189,9 +194,48 @@ public class CityBuild : MonoBehaviour
         }
     }
 
+    private void createRoads(int spaceBetweenRoad)
+    {
+        // create road
+        for (int y = 0; y < mapZone.GetUpperBound(0); y++) // y
+        {
+            for (int x = 0; x < mapZone.GetUpperBound(1); x++) // x
+            {
+                if (y % spaceBetweenRoad == 0 || x % spaceBetweenRoad == 0)
+                {
+                    mapZone[x, y] = CityZone.Road;
+                }
+            }
+        }
+    }
+
+    private void createRuralZone(CityClass city)
+    {
+        var center = new Vector2Int(mapZone.GetLength(0) / 2 + 1, mapZone.GetLength(1) / 2 + 1);
+        var minRadiusOverCenter = Mathf.FloorToInt(city.superficyRadius * 0.2f);
+
+        var maxEtangArea = new Vector2Int(Mathf.FloorToInt(etangDensity / 2f), Mathf.FloorToInt(etangDensity / 2f));
+        var maxParcArea = new Vector2Int(Mathf.FloorToInt(parcDensity / 2f), Mathf.FloorToInt(parcDensity / 2f));
+
+        // create parc and water zone
+        int countY = 0, countX = 0;
+        for (int i = 0; i < mapZone.GetUpperBound(0); i++) // y
+        {
+            for (int j = 0; j < mapZone.GetUpperBound(1); j++) // x
+            {
+                // all the cube inside the radius of the center aren't considered
+                if (j < center.x - minRadiusOverCenter || j > center.x + minRadiusOverCenter)
+                {
+                    countX++;
+                }
+            }
+
+            countY++;
+        }
+    }
 
     private float loiNormale(float x, float esperance, float etendue)
-    {
+	{
         //esperance = centre de la courbe
         return (1 / (etendue * Mathf.Sqrt(2 * Mathf.PI))) * Mathf.Exp(-0.5f * Mathf.Pow(((x - esperance) / etendue), 2));
     }
