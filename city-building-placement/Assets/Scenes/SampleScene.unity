@@ -363,3 +363,4 @@ MonoBehaviour:
   etendue: 10
   densite: 500
   position: {x: 500, y: 500}
+  partieCentreVille: 0.12
