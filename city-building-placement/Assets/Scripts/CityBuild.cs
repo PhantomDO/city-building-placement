@@ -15,9 +15,27 @@ public class CityBuild : MonoBehaviour
     
     private CityZone[,] mapZone = new CityZone[129, 129]; //must be a multiple of 3
     private typeBuilding[,] mapBuilding = new typeBuilding[129, 129]; //must be a multiple of 3
-
+    
     // Start is called before the first frame update
     void Start()
+    {
+        foreach (var city in epicentres)
+        {
+            city.OnAttributeUpdate += initializeCity;
+        }
+
+        initializeCity(epicentres[0]);
+    }
+
+    void OnDestroy()
+    {
+        foreach (var city in epicentres)
+        {
+            city.OnAttributeUpdate -= initializeCity;
+        }
+    }
+
+    private void initializeCity(CityClass city)
     {
         for (int i = 0; i <= mapZone.GetUpperBound(0); i++)
         {
@@ -30,19 +48,7 @@ public class CityBuild : MonoBehaviour
         createRoads(4);
         createCity();
     }
-	private void OnValidate()
-	{
-        for (int i = 0; i <= mapZone.GetUpperBound(0); i++)
-        {
-            for (int j = 0; j <= mapZone.GetUpperBound(1); j++)
-            {
-                mapZone[i, j] = CityZone.NaN;
-                mapBuilding[i, j] = typeBuilding.NaN;
-            }
-        }
-        createRoads(4);
-        createCity();
-    }
+
 	void OnDrawGizmos()
     {
         for (int i = 0; i <= mapZone.GetUpperBound(0); i++)
