@@ -360,5 +360,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   superficyRadius: 200
-  etendue: 50
+  etendue: 10
+  densite: 500
   position: {x: 500, y: 500}
