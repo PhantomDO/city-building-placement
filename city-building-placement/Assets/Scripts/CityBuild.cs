@@ -12,13 +12,18 @@ public class CityBuild : MonoBehaviour
 
     [SerializeField] private List<Vector2Int> parcs;
     [SerializeField] private List<Vector2Int> etangs;
-    
-    private CityZone[,] mapZone = new CityZone[129, 129]; //must be a multiple of 3
-    private typeBuilding[,] mapBuilding = new typeBuilding[129, 129]; //must be a multiple of 3
-    
+
+    public int sizeOfNeighbourhood;
+    public int nbOfNeighbourhood;
+    private CityZone[,] mapZone = new CityZone[0,0];
+    private typeBuilding[,] mapBuilding = new typeBuilding[0,0];
+
     // Start is called before the first frame update
     void Start()
     {
+        mapZone = new CityZone[(sizeOfNeighbourhood+1)*nbOfNeighbourhood, (sizeOfNeighbourhood+1) * nbOfNeighbourhood];
+        mapBuilding = new typeBuilding[(sizeOfNeighbourhood+1) * nbOfNeighbourhood, (sizeOfNeighbourhood+1) * nbOfNeighbourhood];
+
         foreach (var city in epicentres)
         {
             city.OnAttributeUpdate += initializeCity;
@@ -45,7 +50,7 @@ public class CityBuild : MonoBehaviour
                 mapBuilding[i, j] = typeBuilding.NaN;
             }
         }
-        createRoads(4);
+        createRoads(sizeOfNeighbourhood+1);
         createCity();
     }
 
@@ -64,7 +69,12 @@ public class CityBuild : MonoBehaviour
 
                 if (mapZone[i, j] != CityZone.NaN)
                 {
-
+                    
+                    if (mapBuilding[i, j] == typeBuilding.Parc)
+                    {
+                        Gizmos.color = Color.cyan;
+                        Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1f, 1, 1f));
+                    }
                     if (mapBuilding[i, j] == typeBuilding.Maison)
                     {
                         Gizmos.color = new Color(0, 1, 0, 1f);
@@ -107,11 +117,12 @@ public class CityBuild : MonoBehaviour
     }
     public enum typeBuilding : int
     {
-        NaN = 0,
+        NaN = -1,
+        Parc = 0,
         Maison = 1,
         PetitImmeuble = 3,
         Immeuble = 6,
-        GrosImmeuble = 9 //centre ville uniquement
+        GrosImmeuble = 9
     }
     public void createCity()
     {
@@ -128,6 +139,7 @@ public class CityBuild : MonoBehaviour
                     y = (int)y;
                     if (x >= 0 && x < mapZone.GetLength(0) && y >= 0 && y < mapZone.GetLength(1))
                     {
+                        if (mapZone[(int)x, (int)y] == CityZone.Road) continue;
                         if (Random.Range(0, 100) < loiNormale(i, 0, ville.etendue) * ville.densite)
                         {
                             if (i < ville.superficyRadius * ville.partieCentreVille)
@@ -143,56 +155,46 @@ public class CityBuild : MonoBehaviour
         }
         
         //création building
-        for (int i = 0; i <= mapZone.GetUpperBound(0); i += 3)
+        for (int i = 0; i <= mapZone.GetUpperBound(0); i += (sizeOfNeighbourhood + 1))
         {
-            for (int j = 0; j <= mapZone.GetUpperBound(1); j += 3)
+            for (int j = 0; j <= mapZone.GetUpperBound(1); j += (sizeOfNeighbourhood + 1))
             {
                 int count = 0;
-				for (int k = 0; k < 3; k++)
+				for (int k = 0; k < (sizeOfNeighbourhood + 1); k++)
 				{
-					for (int l = 0; l < 3; l++)
+					for (int l = 0; l < (sizeOfNeighbourhood + 1); l++)
 					{
-                        if (mapZone[i+k, j+l] != CityZone.NaN)
+                        if (mapZone[i+k, j+l] != CityZone.NaN && mapZone[i + k, j + l] != CityZone.Road)
                             count++;
 					}
 				}
-                if (count == 9)
+                for (int k = 0; k < (sizeOfNeighbourhood + 1); k++)
                 {
-                    for (int k = 0; k < 3; k++)
+                    for (int l = 0; l < (sizeOfNeighbourhood + 1); l++)
                     {
-                        for (int l = 0; l < 3; l++)
+                        if (count == sizeOfNeighbourhood * sizeOfNeighbourhood)
                         {
                             mapBuilding[i + k, j + l] = typeBuilding.GrosImmeuble;
                         }
-                    }
-                }
-                else if (count >= 6)
-                {
-                    for (int k = 0; k < 3; k++)
-                    {
-                        for (int l = 0; l < 3; l++)
+                        else if (count >= sizeOfNeighbourhood * (sizeOfNeighbourhood - 1))
                         {
                             mapBuilding[i + k, j + l] = typeBuilding.Immeuble;
                         }
-                    }
-                }
-                else if (count >= 3)
-                {
-                    for (int k = 0; k < 3; k++)
-                    {
-                        for (int l = 0; l < 3; l++)
+                        else if (count >= sizeOfNeighbourhood)
                         {
                             mapBuilding[i + k, j + l] = typeBuilding.PetitImmeuble;
                         }
-                    }
-                }
-                else if (count >= 1)
-                {
-                    for (int k = 0; k < 3; k++)
-                    {
-                        for (int l = 0; l < 3; l++)
+                        else if (count >= 1)
                         {
                             mapBuilding[i + k, j + l] = typeBuilding.Maison;
+                        }
+                        else if (count == 0) //parc
+                        {
+                            Debug.Log("parc here");
+                            mapBuilding[i + k, j + l] = typeBuilding.Parc;
+                            Debug.Log((i+k) + ", " + (j+l));
+                            Color color = new Color(1, 0, 1.0f);
+                            Debug.DrawLine(new Vector3(i + k, 0, j + l), new Vector3(i + k + 1f, 0, j + l + 1f), color);
                         }
                     }
                 }
@@ -203,9 +205,9 @@ public class CityBuild : MonoBehaviour
     private void createRoads(int spaceBetweenRoad)
     {
         // create road
-        for (int y = 0; y < mapZone.GetUpperBound(0); y++) // y
+        for (int y = 0; y < (sizeOfNeighbourhood + 1) * nbOfNeighbourhood; y++) // y
         {
-            for (int x = 0; x < mapZone.GetUpperBound(1); x++) // x
+            for (int x = 0; x < (sizeOfNeighbourhood + 1) * nbOfNeighbourhood; x++) // x
             {
                 if (y % spaceBetweenRoad == 0 || x % spaceBetweenRoad == 0)
                 {

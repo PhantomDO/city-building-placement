@@ -364,6 +364,12 @@ MonoBehaviour:
   epicentres:
   - {fileID: 1649007182}
   - {fileID: 1649007183}
+  parcDensity: 15
+  etangDensity: 20
+  parcs: []
+  etangs: []
+  sizeOfNeighbourhood: 3
+  nbOfNeighbourhood: 20
 --- !u!114 &1649007182
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -379,7 +385,7 @@ MonoBehaviour:
   superficyRadius: 200
   etendue: 150
   densite: 5000
-  position: {x: 500, y: 500}
+  position: {x: 10, y: 10}
   partieCentreVille: 0.12
 --- !u!114 &1649007183
 MonoBehaviour:
