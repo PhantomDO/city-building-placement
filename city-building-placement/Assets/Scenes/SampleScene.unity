@@ -366,10 +366,9 @@ MonoBehaviour:
   - {fileID: 1649007183}
   parcDensity: 15
   etangDensity: 20
-  parcs: []
-  etangs: []
-  sizeOfNeighbourhood: 3
-  nbOfNeighbourhood: 20
+  neighborHoodSize: 3
+  neighborHoodCount: 20
+  mapCase: []
 --- !u!114 &1649007182
 MonoBehaviour:
   m_ObjectHideFlags: 0
