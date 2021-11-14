@@ -1,10 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Assets.Scripts;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
+[Serializable]
 public enum Zone : int
 {
     NaN = -1,
@@ -15,6 +16,7 @@ public enum Zone : int
     Etang = 4,
 }
 
+[Serializable]
 public enum Building : int
 {
     NaN = -1,
@@ -22,7 +24,7 @@ public enum Building : int
     Maison = 1,
     PetitImmeuble = 3,
     Immeuble = 6,
-    GrosImmeuble = 9
+    GrosImmeuble = 9,
 }
 
 [Serializable]
@@ -30,6 +32,34 @@ public struct CityCase
 {
     public Zone zone;
     public Building building;
+
+    public static Vector3 GetBuildingSize(CityCase cityCase)
+    {
+        Vector3 size = Vector3.zero;
+
+        if (cityCase.zone != Zone.NaN)
+        {
+            switch (cityCase.building)
+            {
+                case Building.NaN:
+                case Building.Parc:
+                case Building.Maison:
+                    size = Vector3.one;
+                    break;
+                case Building.PetitImmeuble:
+                    size = new Vector3(1f, 2f, 1f);
+                    break;
+                case Building.Immeuble:
+                    size = new Vector3(1f, 4f, 1f);
+                    break;
+                case Building.GrosImmeuble:
+                    size = new Vector3(1f, 6f, 1f);
+                    break;
+            }
+        }
+
+        return size;
+    }
 }
 
 public class CityBuild : MonoBehaviour
@@ -42,14 +72,15 @@ public class CityBuild : MonoBehaviour
     public int neighborHoodSize = 3;
     public int neighborHoodCount = 20;
 
-    private CityCase[] _mapCase;
+    public GenericDictionary<Building, Color> buildingColor;
 
+    public CityCase[] MapCase { get; private set; }
     public int DimensionSize { get; private set; }
 
     private void Awake()
     {
         DimensionSize = (neighborHoodSize + 1) * neighborHoodCount;
-        _mapCase = new CityCase[DimensionSize * DimensionSize];
+        MapCase = new CityCase[DimensionSize * DimensionSize];
     }
 
     // Start is called before the first frame update
@@ -60,7 +91,7 @@ public class CityBuild : MonoBehaviour
             for (int j = 0; j < DimensionSize; j++)
             {
                 int index = i * DimensionSize + j;
-                _mapCase[index] = new CityCase
+                MapCase[index] = new CityCase
                 {
                     zone = Zone.NaN,
                     building = Building.NaN
@@ -84,56 +115,6 @@ public class CityBuild : MonoBehaviour
         }
     }
 
-	void OnDrawGizmos()
-    {
-        if (DimensionSize <= 0) return;
-
-        for (int i = 0; i < DimensionSize; i++)
-        {
-            for (int j = 0; j < DimensionSize; j++)
-            {
-                int index = i * DimensionSize + j;
-
-                if (_mapCase[index].zone == Zone.Road)
-                {
-                    Gizmos.color = Color.black;
-                    Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1, 1, 1));
-                    continue;
-                }
-
-                if (_mapCase[index].zone != Zone.NaN)
-                {
-                    
-                    if (_mapCase[index].building == Building.Parc)
-                    {
-                        Gizmos.color = Color.cyan;
-                        Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1f, 1, 1f));
-                    }
-                    if (_mapCase[index].building == Building.Maison)
-                    {
-                        Gizmos.color = new Color(0, 1, 0, 1f);
-                        Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1, 1, 1));
-                    }
-                    else if (_mapCase[index].building == Building.PetitImmeuble)
-                    {
-                        Gizmos.color = new Color(1, 0, 0, 1f);
-                        Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1f, 2, 1f));
-                    }
-                    else if (_mapCase[index].building == Building.Immeuble)
-                    {
-                        Gizmos.color = new Color(0, 0, 1, 1f);
-                        Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1f, 4, 1f));
-                    }
-                    else if (_mapCase[index].building == Building.GrosImmeuble)
-                    {
-                        Gizmos.color = new Color(1, 1, 0, 1f);
-                        Gizmos.DrawCube(new Vector3(i, 0, j), new Vector3(1f, 6, 1f));
-                    }
-                }
-            }
-        }
-    }
-
     private void CreateCity(CityClass city)
     {
         CreateRoads(neighborHoodSize + 1);
@@ -149,6 +130,11 @@ public class CityBuild : MonoBehaviour
             {
                 CreateBuildings(i, j);
             }
+        }
+
+        if (TryGetComponent(out CityRenderer renderer))
+        {
+            renderer.Setup();
         }
     }
 
@@ -166,10 +152,10 @@ public class CityBuild : MonoBehaviour
                 int index = y * DimensionSize + x;
 
                 if ((x >= 0 && x < DimensionSize && y >= 0 && y < DimensionSize) &&
-                    (_mapCase[index].zone != Zone.Road && _mapCase[index].zone != Zone.CentreVille) &&
+                    (MapCase[index].zone != Zone.Road && MapCase[index].zone != Zone.CentreVille) &&
                     Random.Range(0.0f, 100.0f) < curve)
                 {
-                    _mapCase[index].zone = i < city.superficyRadius * city.partieCentreVille ? Zone.CentreVille : Zone.Residentiel;
+                    MapCase[index].zone = i < city.superficyRadius * city.partieCentreVille ? Zone.CentreVille : Zone.Residentiel;
                 }
             }
         }
@@ -185,7 +171,7 @@ public class CityBuild : MonoBehaviour
             {
                 int index = (i + k) * DimensionSize + (j + l);
                 
-                if (_mapCase[index].zone == Zone.NaN || _mapCase[index].zone == Zone.Road)
+                if (MapCase[index].zone == Zone.NaN || MapCase[index].zone == Zone.Road)
                 {
                     continue;
                 }
@@ -194,7 +180,7 @@ public class CityBuild : MonoBehaviour
 
                 if (count == 0) // it's a parc
                 {
-                    _mapCase[index].building = Building.Parc;
+                    MapCase[index].building = Building.Parc;
                     Debug.Log("parc here");
                     Debug.Log((i + k) + ", " + (j + l));
                     Color color = new Color(1, 0, 1.0f);
@@ -204,20 +190,21 @@ public class CityBuild : MonoBehaviour
                 {
                     if (count == neighborHoodSize * neighborHoodSize)
                     {
-                        _mapCase[index].building = Building.GrosImmeuble;
+                        MapCase[index].building = Building.GrosImmeuble;
                         return;
                     }
 
                     if (count >= neighborHoodSize * (neighborHoodSize - 1))
                     {
-                        _mapCase[index].building = Building.Immeuble;
+                        MapCase[index].building = Building.Immeuble;
                         continue;
                     }
 
-                    _mapCase[index].building = count >= neighborHoodSize ? Building.PetitImmeuble : Building.Maison;
+                    MapCase[index].building = count >= neighborHoodSize ? Building.PetitImmeuble : Building.Maison;
                 }
             }
         }
+        
     }
 
     private void CreateRoads(int spaceBetweenRoad)
@@ -230,7 +217,7 @@ public class CityBuild : MonoBehaviour
                 int index = y * DimensionSize + x;
                 if (y % spaceBetweenRoad == 0 || x % spaceBetweenRoad == 0)
                 {
-                    _mapCase[index].zone = Zone.Road;
+                    MapCase[index].zone = Zone.Road;
                 }
             }
         }
@@ -238,7 +225,7 @@ public class CityBuild : MonoBehaviour
 
     private void CreateRuralZone(CityClass city)
     {
-        var center = new Vector2Int(_mapCase.GetLength(0) / 2 + 1, _mapCase.GetLength(1) / 2 + 1);
+        var center = new Vector2Int(MapCase.GetLength(0) / 2 + 1, MapCase.GetLength(1) / 2 + 1);
         var minRadiusOverCenter = Mathf.FloorToInt(city.superficyRadius * 0.2f);
 
         var maxEtangArea = new Vector2Int(Mathf.FloorToInt(etangDensity / 2f), Mathf.FloorToInt(etangDensity / 2f));
@@ -246,9 +233,9 @@ public class CityBuild : MonoBehaviour
 
         // create parc and water zone
         int countY = 0, countX = 0;
-        for (int y = 0; y < _mapCase.GetUpperBound(0); ++y)
+        for (int y = 0; y < MapCase.GetUpperBound(0); ++y)
         {
-            for (int x = 0; x < _mapCase.GetUpperBound(1); ++x)
+            for (int x = 0; x < MapCase.GetUpperBound(1); ++x)
             {
                 // all the cube inside the radius of the center aren't considered
                 if (x < center.x - minRadiusOverCenter || x > center.x + minRadiusOverCenter)

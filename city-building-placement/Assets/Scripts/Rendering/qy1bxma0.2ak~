@@ -18,15 +18,22 @@ namespace Assets.Scripts
     [RequireComponent(typeof(CityBuild))]
     public class CityRenderer : MonoBehaviour
     {
+        public Mesh mesh;
+        private Bounds _bounds;
+
+        public bool drawGizmos = false;
+
+        [Header("Component")]
         private CityBuild _builder;
-        
+
+        [Header("Shader")]
         public Material material;
         public ComputeShader computeShader;
         private ComputeBuffer _meshPropertiesBuffer;
         private ComputeBuffer _argsBuffer;
 
-        public Mesh mesh;
-        private Bounds _bounds;
+        private static readonly int Properties = Shader.PropertyToID("_Properties");
+
 
         #region Unity
 
@@ -42,8 +49,8 @@ namespace Assets.Scripts
 
         public void Update()
         {
-            int kernel = computeShader.FindKernel("CSMain");
-            computeShader.Dispatch(kernel, Mathf.CeilToInt((_builder.DimensionSize * _builder.DimensionSize) / 64f), 1, 1);
+            //int kernel = computeShader.FindKernel("CSMain");
+            //computeShader.Dispatch(kernel, Mathf.CeilToInt((_builder.DimensionSize * _builder.DimensionSize) / 64f), 1, 1);
             Graphics.DrawMeshInstancedIndirect(mesh, 0, material, _bounds, _argsBuffer);
         }
 
@@ -61,6 +68,27 @@ namespace Assets.Scripts
             }
             _argsBuffer = null;
         }
+        
+        void OnDrawGizmos()
+        {
+            if (!drawGizmos) return;
+
+            if (_builder == null || _builder.DimensionSize <= 0) return;
+
+            for (int i = 0; i < _builder.DimensionSize; i++)
+            {
+                for (int j = 0; j < _builder.DimensionSize; j++)
+                {
+                    int index = i * _builder.DimensionSize + j;
+
+                    if (_builder.MapCase[index].zone != Zone.NaN)
+                    {
+                        Gizmos.color = _builder.buildingColor[_builder.MapCase[index].building];
+                        Gizmos.DrawCube(new Vector3(i, 0, j), CityCase.GetBuildingSize(_builder.MapCase[index]));
+                    }
+                }
+            }
+        }
 
         #endregion
 
@@ -68,10 +96,11 @@ namespace Assets.Scripts
         {
             if (mesh == null)
             {
-                mesh = CreateCube();
+                Mesh m = CreateCube();
+                mesh = m;
             }
 
-            _bounds = new Bounds(transform.position, Vector3.one);
+            _bounds = new Bounds(transform.position, Vector3.one * _builder.DimensionSize * 2);
             InitializeBuffers();
         }
 
@@ -95,24 +124,26 @@ namespace Assets.Scripts
 
             // Init buffer with grid
             MeshProperties[] properties = new MeshProperties[_builder.DimensionSize * _builder.DimensionSize];
-            for (int y = 0; y < _builder.DimensionSize; y++)
+            for (uint z = 0; z < _builder.DimensionSize; ++z)
             {
-                for (int x = 0; x < _builder.DimensionSize; x++)
+                for (uint x = 0; x < _builder.DimensionSize; ++x)
                 {
+                    var cityCase = _builder.MapCase[z * _builder.DimensionSize + x];
+
                     MeshProperties props = new MeshProperties();
-                    Vector3 position = new Vector3(x, y, 0);
+                    Vector3 position = new Vector3(x, 0, z);
                     Quaternion rotation = Quaternion.identity;
-                    Vector3 scale = Vector3.one;
+                    Vector3 scale = CityCase.GetBuildingSize(cityCase);
 
                     props.mat = Matrix4x4.TRS(position, rotation, scale);
-                    props.color = Color.white;
+                    props.color = _builder.buildingColor[cityCase.building];
                 }
             }
 
             _meshPropertiesBuffer = new ComputeBuffer((int)(_builder.DimensionSize * _builder.DimensionSize), MeshProperties.Size());
             _meshPropertiesBuffer.SetData(properties);
 
-            computeShader.SetBuffer(kernel, "_Properties", _meshPropertiesBuffer);
+            //computeShader.SetBuffer(kernel, "_Properties", _meshPropertiesBuffer);
             material.SetBuffer("_Properties", _meshPropertiesBuffer);
         }
 
