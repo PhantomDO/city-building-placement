@@ -43,19 +43,23 @@ public class CityBuild : MonoBehaviour
     public int neighborHoodCount = 20;
 
     private CityCase[] _mapCase;
-    private int _dimensionSize;
+
+    public int DimensionSize { get; private set; }
+
+    private void Awake()
+    {
+        DimensionSize = (neighborHoodSize + 1) * neighborHoodCount;
+        _mapCase = new CityCase[DimensionSize * DimensionSize];
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        _dimensionSize = (neighborHoodSize + 1) * neighborHoodCount;
-        _mapCase = new CityCase[_dimensionSize * _dimensionSize];
-
-        for (int i = 0; i < _dimensionSize; i++)
+        for (int i = 0; i < DimensionSize; i++)
         {
-            for (int j = 0; j < _dimensionSize; j++)
+            for (int j = 0; j < DimensionSize; j++)
             {
-                int index = i * _dimensionSize + j;
+                int index = i * DimensionSize + j;
                 _mapCase[index] = new CityCase
                 {
                     zone = Zone.NaN,
@@ -66,29 +70,29 @@ public class CityBuild : MonoBehaviour
 
         foreach (var city in epicentres)
         {
-            city.OnAttributeUpdate += createCity;
+            city.OnAttributeUpdate += CreateCity;
         }
 
-        createCity(epicentres[0]);
+        CreateCity(epicentres[0]);
     }
 
     void OnDestroy()
     {
         foreach (var city in epicentres)
         {
-            city.OnAttributeUpdate -= createCity;
+            city.OnAttributeUpdate -= CreateCity;
         }
     }
 
 	void OnDrawGizmos()
     {
-        if (_dimensionSize <= 0) return;
+        if (DimensionSize <= 0) return;
 
-        for (int i = 0; i < _dimensionSize; i++)
+        for (int i = 0; i < DimensionSize; i++)
         {
-            for (int j = 0; j < _dimensionSize; j++)
+            for (int j = 0; j < DimensionSize; j++)
             {
-                int index = i * _dimensionSize + j;
+                int index = i * DimensionSize + j;
 
                 if (_mapCase[index].zone == Zone.Road)
                 {
@@ -130,25 +134,25 @@ public class CityBuild : MonoBehaviour
         }
     }
 
-    private void createCity(CityClass city)
+    private void CreateCity(CityClass city)
     {
-        createRoads(neighborHoodSize + 1);
+        CreateRoads(neighborHoodSize + 1);
         
         foreach (var ville in epicentres)
         {
-            createEpicentres(ville);
+            CreateEpicentres(ville);
         }
 
-        for (int i = 0; i < _dimensionSize; i += (neighborHoodSize + 1))
+        for (int i = 0; i < DimensionSize; i += (neighborHoodSize + 1))
         {
-            for (int j = 0; j < _dimensionSize; j += (neighborHoodSize + 1))
+            for (int j = 0; j < DimensionSize; j += (neighborHoodSize + 1))
             {
-                createBuildings(i, j);
+                CreateBuildings(i, j);
             }
         }
     }
 
-    private void createEpicentres(CityClass city)
+    private void CreateEpicentres(CityClass city)
     {
         for (int i = 0; i < city.superficyRadius; ++i)
         {
@@ -157,11 +161,11 @@ public class CityBuild : MonoBehaviour
                 int x = (int)(city.position.x + i * Mathf.Cos(theta));
                 int y = (int)(city.position.y + i * Mathf.Sin(theta));
 
-                float curve = loiNormale(i, 0, city.etendue) * city.densite;
+                float curve = LoiNormale(i, 0, city.etendue) * city.densite;
 
-                int index = y * _dimensionSize + x;
+                int index = y * DimensionSize + x;
 
-                if ((x >= 0 && x < _dimensionSize && y >= 0 && y < _dimensionSize) &&
+                if ((x >= 0 && x < DimensionSize && y >= 0 && y < DimensionSize) &&
                     (_mapCase[index].zone != Zone.Road && _mapCase[index].zone != Zone.CentreVille) &&
                     Random.Range(0.0f, 100.0f) < curve)
                 {
@@ -171,7 +175,7 @@ public class CityBuild : MonoBehaviour
         }
     }
 
-    private void createBuildings(int i, int j)
+    private void CreateBuildings(int i, int j)
     {
         int count = 0;
 
@@ -179,7 +183,7 @@ public class CityBuild : MonoBehaviour
         {
             for (int l = 0; l < neighborHoodSize + 1; ++l)
             {
-                int index = (i + k) * _dimensionSize + (j + l);
+                int index = (i + k) * DimensionSize + (j + l);
                 
                 if (_mapCase[index].zone == Zone.NaN || _mapCase[index].zone == Zone.Road)
                 {
@@ -216,14 +220,14 @@ public class CityBuild : MonoBehaviour
         }
     }
 
-    private void createRoads(int spaceBetweenRoad)
+    private void CreateRoads(int spaceBetweenRoad)
     {
         // create road
         for (int y = 0; y < (neighborHoodSize + 1) * neighborHoodCount; ++y) 
         {
             for (int x = 0; x < (neighborHoodSize + 1) * neighborHoodCount; ++x) 
             {
-                int index = y * _dimensionSize + x;
+                int index = y * DimensionSize + x;
                 if (y % spaceBetweenRoad == 0 || x % spaceBetweenRoad == 0)
                 {
                     _mapCase[index].zone = Zone.Road;
@@ -232,7 +236,7 @@ public class CityBuild : MonoBehaviour
         }
     }
 
-    private void createRuralZone(CityClass city)
+    private void CreateRuralZone(CityClass city)
     {
         var center = new Vector2Int(_mapCase.GetLength(0) / 2 + 1, _mapCase.GetLength(1) / 2 + 1);
         var minRadiusOverCenter = Mathf.FloorToInt(city.superficyRadius * 0.2f);
@@ -257,7 +261,7 @@ public class CityBuild : MonoBehaviour
         }
     }
 
-    private float loiNormale(float x, float esperance, float etendue)
+    private float LoiNormale(float x, float esperance, float etendue)
 	{
         //esperance = centre de la courbe
         return (1 / (etendue * Mathf.Sqrt(2 * Mathf.PI))) * Mathf.Exp(-0.5f * Mathf.Pow(((x - esperance) / etendue), 2));
