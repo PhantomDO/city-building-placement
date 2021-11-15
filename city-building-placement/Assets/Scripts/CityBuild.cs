@@ -118,7 +118,7 @@ public class CityBuild : MonoBehaviour
     private void CreateCity(CityClass city)
     {
         CreateRoads(neighborHoodSize + 1);
-        
+
         foreach (var ville in epicentres)
         {
             CreateEpicentres(ville);
@@ -152,11 +152,12 @@ public class CityBuild : MonoBehaviour
                 int index = y * DimensionSize + x;
 
                 if ((x >= 0 && x < DimensionSize && y >= 0 && y < DimensionSize) &&
-                    (MapCase[index].zone != Zone.Road && MapCase[index].zone != Zone.CentreVille) &&
-                    Random.Range(0.0f, 100.0f) < curve)
+                    MapCase[index].zone != Zone.Road && MapCase[index].zone != Zone.CentreVille 
+                    && Random.Range(0.0f, 100.0f) < curve)
                 {
                     MapCase[index].zone = i < city.superficyRadius * city.partieCentreVille ? Zone.CentreVille : Zone.Residentiel;
                 }
+
             }
         }
     }
@@ -170,37 +171,45 @@ public class CityBuild : MonoBehaviour
             for (int l = 0; l < neighborHoodSize + 1; ++l)
             {
                 int index = (i + k) * DimensionSize + (j + l);
-                
-                if (MapCase[index].zone == Zone.NaN || MapCase[index].zone == Zone.Road)
-                {
-                    continue;
-                }
-                
-                count++;
 
-                if (count == 0) // it's a parc
+                if (MapCase[index].zone != Zone.NaN && MapCase[index].zone != Zone.Road)
+                {
+                    count++;
+                }
+            }
+        }
+
+        for (int k = 0; k < neighborHoodSize + 1; ++k)
+        {
+            for (int l = 0; l < neighborHoodSize + 1; ++l)
+            {
+                int index = (i + k) * DimensionSize + (j + l);
+                
+                if (MapCase[index].zone == Zone.Road) continue;
+
+                if (count == neighborHoodSize * neighborHoodSize)
+                {
+                    MapCase[index].building = Building.GrosImmeuble;
+                }
+                else if (count >= neighborHoodSize * (neighborHoodSize - 1))
+                {
+                    MapCase[index].building = Building.Immeuble;
+                }
+                else if (count >= neighborHoodSize)
+                {
+                    MapCase[index].building = Building.PetitImmeuble;
+                }
+                else if (count >= 1)
+                {
+                    MapCase[index].building = Building.Maison;
+                }
+                else if (count == 0)
                 {
                     MapCase[index].building = Building.Parc;
                     Debug.Log("parc here");
                     Debug.Log((i + k) + ", " + (j + l));
-                    Color color = new Color(1, 0, 1.0f);
+                    Color color = Color.green;
                     Debug.DrawLine(new Vector3(i + k, 0, j + l), new Vector3(i + k + 1f, 0, j + l + 1f), color);
-                }
-                else
-                {
-                    if (count == neighborHoodSize * neighborHoodSize)
-                    {
-                        MapCase[index].building = Building.GrosImmeuble;
-                        return;
-                    }
-
-                    if (count >= neighborHoodSize * (neighborHoodSize - 1))
-                    {
-                        MapCase[index].building = Building.Immeuble;
-                        continue;
-                    }
-
-                    MapCase[index].building = count >= neighborHoodSize ? Building.PetitImmeuble : Building.Maison;
                 }
             }
         }

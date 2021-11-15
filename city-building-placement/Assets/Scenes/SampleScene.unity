@@ -334,17 +334,20 @@ MonoBehaviour:
   buildingMeshes:
     list:
     - Key: -1
-      Value: {fileID: -3535181227999329379, guid: 6ea710ec193b73c42aaf0fd332d491ff, type: 3}
+      Value: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
     - Key: 0
-      Value: {fileID: -3535181227999329379, guid: 6ea710ec193b73c42aaf0fd332d491ff, type: 3}
+      Value: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
     - Key: 1
       Value: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
     - Key: 3
-      Value: {fileID: 5433645048603677756, guid: e44a5f19d9b5a0f4dbd99571147b0673, type: 3}
+      Value: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
     - Key: 6
-      Value: {fileID: -705778701360641599, guid: 2ca8a802fe3b46a499d8d6f28c4b66d1, type: 3}
+      Value: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
     - Key: 9
-      Value: {fileID: -7592616815848013309, guid: 022396eb308d3a94c815a3d3f1dc3f98, type: 3}
+      Value: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+    keyCollision: 0
+  buildingMaterials:
+    list: []
     keyCollision: 0
   drawGizmos: 0
   material: {fileID: 2100000, guid: b6b6525bc7b6e0d44a498f579bbf82a6, type: 2}
@@ -380,8 +383,8 @@ MonoBehaviour:
   - {fileID: 1649007183}
   parcDensity: 15
   etangDensity: 20
-  neighborHoodSize: 3
-  neighborHoodCount: 20
+  neighborHoodSize: 8
+  neighborHoodCount: 40
   buildingColor:
     list:
     - Key: -1
@@ -409,10 +412,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d2a1113070a500418ae6b6b3ee4a8b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  superficyRadius: 200
+  superficyRadius: 400
   etendue: 150
-  densite: 5000
-  position: {x: 10, y: 10}
+  densite: 181600
+  position: {x: 100, y: 100}
   partieCentreVille: 0.12
 --- !u!114 &1649007183
 MonoBehaviour:

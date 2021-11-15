@@ -50,7 +50,7 @@ Shader "Custom/InstancedIndirectColor" {
             fixed4 frag(v2f i) : SV_Target {
                 float4 col = i.color * tex2D(_MainTex, i.uv);
                 clip(col.a - 0.5);
-                return col;
+                return i.color;
             }
 
             ENDCG

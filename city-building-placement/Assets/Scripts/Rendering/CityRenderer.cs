@@ -20,6 +20,7 @@ namespace Assets.Scripts
     public class CityRenderer : MonoBehaviour
     {
         public GenericDictionary<Building, Mesh> buildingMeshes;
+        public GenericDictionary<Building, List<Material>> buildingMaterials;
         private Bounds _bounds;
 
         public bool drawGizmos = false;
@@ -27,11 +28,11 @@ namespace Assets.Scripts
         [Header("Component")]
         private CityBuild _builder;
 
-        [Header("Shader")]
+        [Header("Shader")] 
         public Material material;
         public ComputeShader computeShader;
         private ComputeBuffer _meshPropertiesBuffer;
-        private GenericDictionary<Building, ComputeBuffer> _argsBuffers;
+        private GenericDictionary<Building, List<ComputeBuffer>> _argsBuffers;
 
         private static readonly int Properties = Shader.PropertyToID("_Properties");
 
@@ -44,14 +45,14 @@ namespace Assets.Scripts
             _builder = GetComponent<CityBuild>();
             _isSetup = false;
 
-            _argsBuffers = new GenericDictionary<Building, ComputeBuffer>()
+            _argsBuffers = new GenericDictionary<Building, List<ComputeBuffer>>
             {
-                { Building.NaN, null },
-                { Building.Parc, null },
-                { Building.Maison, null },
-                { Building.PetitImmeuble, null },
-                { Building.Immeuble, null },
-                { Building.GrosImmeuble, null }
+                { Building.NaN, new List<ComputeBuffer>() },
+                { Building.Parc, new List<ComputeBuffer>() },
+                { Building.Maison, new List<ComputeBuffer>() },
+                { Building.PetitImmeuble, new List<ComputeBuffer>() },
+                { Building.Immeuble, new List<ComputeBuffer>() },
+                { Building.GrosImmeuble, new List<ComputeBuffer>() }
             };
         }
 
@@ -64,7 +65,10 @@ namespace Assets.Scripts
             {
                 foreach (var mesh in buildingMeshes)
                 {
-                    Graphics.DrawMeshInstancedIndirect(mesh.Value, 0, material, _bounds, _argsBuffers[mesh.Key]);
+                    for (int i = 0; i < mesh.Value.subMeshCount; i++)
+                    {
+                        Graphics.DrawMeshInstancedIndirect(mesh.Value, i, material, _bounds, _argsBuffers[mesh.Key][i]);
+                    }
                 }
             }
         }
@@ -74,14 +78,16 @@ namespace Assets.Scripts
             _meshPropertiesBuffer?.Release();
             _meshPropertiesBuffer = null;
 
-            if (_argsBuffers != null)
+            if (_argsBuffers == null) return;
+
+            foreach (var a in _argsBuffers)
             {
-                foreach (var a in _argsBuffers)
+                foreach (var buffer in a.Value)
                 {
-                    a.Value?.Release();
+                    buffer.Release();
                 }
 
-                _argsBuffers.Clear();
+                a.Value.Clear();
             }
         }
         
@@ -134,15 +140,19 @@ namespace Assets.Scripts
             // 0 = count of triangles indices
             // 1 = population
             // other when submeshes 
-            foreach (var mesh in buildingMeshes)
+            foreach (var building in buildingMeshes)
             {
-                args[0] = (uint)mesh.Value.GetIndexCount(0);
-                args[1] = (uint)(_builder.DimensionSize * _builder.DimensionSize);
-                args[2] = (uint)mesh.Value.GetIndexStart(0);
-                args[3] = (uint)mesh.Value.GetBaseVertex(0);
+                for (int i = 0; i < building.Value.subMeshCount; i++)
+                {
+                    args[0] = (uint)building.Value.GetIndexCount(i);
+                    args[1] = (uint)(_builder.DimensionSize * _builder.DimensionSize);
+                    args[2] = (uint)building.Value.GetIndexStart(i);
+                    args[3] = (uint)building.Value.GetBaseVertex(i);
 
-                _argsBuffers[mesh.Key] = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
-                _argsBuffers[mesh.Key].SetData(args);
+                    _argsBuffers[building.Key].Add(new ComputeBuffer(1, 
+                        args.Length * sizeof(uint), ComputeBufferType.IndirectArguments));
+                    _argsBuffers[building.Key][i].SetData(args);
+                }
             }
 
             // Init buffer with grid
