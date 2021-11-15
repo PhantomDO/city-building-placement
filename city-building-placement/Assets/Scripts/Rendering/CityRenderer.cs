@@ -103,7 +103,7 @@ namespace Assets.Scripts
                 {
                     int index = i * _builder.DimensionSize + j;
 
-                    if (_builder.MapCase[index].zone != Zone.NaN)
+                    if (_builder.MapCase[index].occuped == true)
                     {
                         Gizmos.color = _builder.buildingColor[_builder.MapCase[index].building];
                         Gizmos.DrawCube(new Vector3(i, 0, j), CityCase.GetBuildingSize(_builder.MapCase[index]));
@@ -169,7 +169,7 @@ namespace Assets.Scripts
                     Quaternion rotation = Quaternion.identity;
 
                     props.mat = Matrix4x4.TRS(position, rotation, scale);
-                    props.color = _builder.buildingColor[cityCase.building];
+                    props.color = cityCase.occuped == true ? _builder.buildingColor[cityCase.building] : Color.clear;
                     properties[z * _builder.DimensionSize + x] = props;
                 }
             }

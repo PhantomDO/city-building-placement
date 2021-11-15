@@ -383,8 +383,8 @@ MonoBehaviour:
   - {fileID: 1649007183}
   parcDensity: 15
   etangDensity: 20
-  neighborHoodSize: 8
-  neighborHoodCount: 40
+  neighborHoodSize: 3
+  neighborHoodCount: 20
   buildingColor:
     list:
     - Key: -1
@@ -412,11 +412,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d2a1113070a500418ae6b6b3ee4a8b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  superficyRadius: 400
+  superficyRadius: 200
   etendue: 150
-  densite: 181600
-  position: {x: 100, y: 100}
-  partieCentreVille: 0.12
+  densite: 500
+  position: {x: 10, y: 10}
+  partieCentreVille: 0.2
 --- !u!114 &1649007183
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -14,6 +14,7 @@ public enum Zone : int
     Residentiel = 2,
     Parc = 3,
     Etang = 4,
+    Industriel = 5,
 }
 
 [Serializable]
@@ -25,6 +26,7 @@ public enum Building : int
     PetitImmeuble = 3,
     Immeuble = 6,
     GrosImmeuble = 9,
+    Usine = 10,
 }
 
 [Serializable]
@@ -32,6 +34,7 @@ public struct CityCase
 {
     public Zone zone;
     public Building building;
+    public bool occuped;
 
     public static Vector3 GetBuildingSize(CityCase cityCase)
     {
@@ -83,7 +86,6 @@ public class CityBuild : MonoBehaviour
         MapCase = new CityCase[DimensionSize * DimensionSize];
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         for (int i = 0; i < DimensionSize; i++)
@@ -94,7 +96,8 @@ public class CityBuild : MonoBehaviour
                 MapCase[index] = new CityCase
                 {
                     zone = Zone.NaN,
-                    building = Building.NaN
+                    building = Building.NaN,
+                    occuped = false
                 };
             }
         }
@@ -117,13 +120,15 @@ public class CityBuild : MonoBehaviour
 
     private void CreateCity(CityClass city)
     {
-        CreateRoads(neighborHoodSize + 1);
+        
 
         foreach (var ville in epicentres)
         {
             CreateEpicentres(ville);
         }
 
+        CreateRoads(neighborHoodSize + 1);
+        
         for (int i = 0; i < DimensionSize; i += (neighborHoodSize + 1))
         {
             for (int j = 0; j < DimensionSize; j += (neighborHoodSize + 1))
@@ -150,12 +155,13 @@ public class CityBuild : MonoBehaviour
                 float curve = LoiNormale(i, 0, city.etendue) * city.densite;
 
                 int index = y * DimensionSize + x;
-
-                if ((x >= 0 && x < DimensionSize && y >= 0 && y < DimensionSize) &&
-                    MapCase[index].zone != Zone.Road && MapCase[index].zone != Zone.CentreVille 
-                    && Random.Range(0.0f, 100.0f) < curve)
+                if (x >= 0 && x < DimensionSize && y >= 0 && y < DimensionSize)
                 {
                     MapCase[index].zone = i < city.superficyRadius * city.partieCentreVille ? Zone.CentreVille : Zone.Residentiel;
+                    if (Random.Range(0.0f, 100.0f) < curve)
+                    {
+                        MapCase[index].occuped = true;
+                    }
                 }
 
             }
@@ -172,7 +178,7 @@ public class CityBuild : MonoBehaviour
             {
                 int index = (i + k) * DimensionSize + (j + l);
 
-                if (MapCase[index].zone != Zone.NaN && MapCase[index].zone != Zone.Road)
+                if (MapCase[index].occuped == true && MapCase[index].zone != Zone.Road)
                 {
                     count++;
                 }
@@ -185,6 +191,11 @@ public class CityBuild : MonoBehaviour
             {
                 int index = (i + k) * DimensionSize + (j + l);
                 
+                //if (MapCase[index].zone == Zone.Road && count == 0)
+                //{
+                //    MapCase[index].building = Building.Parc;
+                //    MapCase[index].zone = Zone.Parc;
+                //}
                 if (MapCase[index].zone == Zone.Road) continue;
 
                 if (count == neighborHoodSize * neighborHoodSize)
@@ -206,10 +217,8 @@ public class CityBuild : MonoBehaviour
                 else if (count == 0)
                 {
                     MapCase[index].building = Building.Parc;
-                    Debug.Log("parc here");
-                    Debug.Log((i + k) + ", " + (j + l));
-                    Color color = Color.green;
-                    Debug.DrawLine(new Vector3(i + k, 0, j + l), new Vector3(i + k + 1f, 0, j + l + 1f), color);
+                    MapCase[index].zone = Zone.Parc;
+                    MapCase[index].occuped = true;
                 }
             }
         }
@@ -224,9 +233,10 @@ public class CityBuild : MonoBehaviour
             for (int x = 0; x < (neighborHoodSize + 1) * neighborHoodCount; ++x) 
             {
                 int index = y * DimensionSize + x;
-                if (y % spaceBetweenRoad == 0 || x % spaceBetweenRoad == 0)
+                if ((y % spaceBetweenRoad == 0 || x % spaceBetweenRoad == 0) && MapCase[index].zone == Zone.CentreVille)
                 {
                     MapCase[index].zone = Zone.Road;
+                    MapCase[index].occuped = true;
                 }
             }
         }
