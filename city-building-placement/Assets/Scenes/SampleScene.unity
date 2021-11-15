@@ -345,6 +345,10 @@ MonoBehaviour:
       Value: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
     - Key: 9
       Value: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+    - Key: 10
+      Value: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+    - Key: 11
+      Value: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
     keyCollision: 0
   buildingMaterials:
     list: []
@@ -399,6 +403,10 @@ MonoBehaviour:
       Value: {r: 0, g: 0, b: 1, a: 1}
     - Key: 9
       Value: {r: 0.999694, g: 1, b: 0, a: 1}
+    - Key: 10
+      Value: {r: 0.38679248, g: 0.38679248, b: 0.38679248, a: 1}
+    - Key: 11
+      Value: {r: 0, g: 0.97979045, b: 1, a: 1}
     keyCollision: 0
 --- !u!114 &1649007182
 MonoBehaviour:
@@ -414,7 +422,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   superficyRadius: 200
   etendue: 150
-  densite: 500
+  densite: 5000
   position: {x: 10, y: 10}
   partieCentreVille: 0.2
 --- !u!114 &1649007183

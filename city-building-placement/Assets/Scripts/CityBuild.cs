@@ -27,6 +27,7 @@ public enum Building : int
     Immeuble = 6,
     GrosImmeuble = 9,
     Usine = 10,
+    Etang = 11,
 }
 
 [Serializable]
@@ -34,7 +35,7 @@ public struct CityCase
 {
     public Zone zone;
     public Building building;
-    public bool occuped;
+    public bool occupied;
 
     public static Vector3 GetBuildingSize(CityCase cityCase)
     {
@@ -46,6 +47,10 @@ public struct CityCase
             {
                 case Building.NaN:
                 case Building.Parc:
+                case Building.Etang:
+                    size = new Vector3(1, 0.1f, 1);
+                    break;
+                case Building.Usine:
                 case Building.Maison:
                     size = Vector3.one;
                     break;
@@ -97,7 +102,7 @@ public class CityBuild : MonoBehaviour
                 {
                     zone = Zone.NaN,
                     building = Building.NaN,
-                    occuped = false
+                    occupied = false
                 };
             }
         }
@@ -161,11 +166,12 @@ public class CityBuild : MonoBehaviour
                     MapCase[index].zone = i < city.superficyRadius * city.partieCentreVille ? Zone.CentreVille : Zone.Residentiel;
                     if (Random.Range(0.0f, 100.0f) < curve)
                     {
-                        MapCase[index].occuped = true;
+                        MapCase[index].occupied = true;
                     }
 
-                    if (MapCase[index].zone == Zone.Residentiel && Random.Range(0f, 1f) >= 0.98f)
+                    if (MapCase[index].zone == Zone.Residentiel && Random.Range(0f, 1f) >= 0.9995f)
                     {
+                        Debug.Log($"Create zone industriel");
                         CreateIndustrialZone(x, y);
                     }
                 }
@@ -173,9 +179,25 @@ public class CityBuild : MonoBehaviour
         }
     }
 
-    private void CreateIndustrialZone(int x, int y)
+    private void CreateIndustrialZone(int posX, int posY)
     {
         // TODO : faire la zone
+        float radius = Random.Range(0.01f, 0.08f);
+
+        for (float i = 0; i < radius; i+=0.01f)
+        {
+            for (float theta = 0; theta < 2 * Mathf.PI; theta += 0.01f)
+            {
+                int x = (int)(posX + i * 100 * Mathf.Cos(theta));
+                int y = (int)(posY + i * 100 * Mathf.Sin(theta));
+
+                int index = y * DimensionSize + x;
+                if (x >= 0 && x < DimensionSize && y >= 0 && y < DimensionSize)
+                {
+                    MapCase[index].zone = Zone.Industriel;
+                }
+            }
+        }
     }
 
     private void CreateBuildings(int i, int j)
@@ -188,7 +210,8 @@ public class CityBuild : MonoBehaviour
             {
                 int index = (i + k) * DimensionSize + (j + l);
 
-                if (MapCase[index].occuped == true && MapCase[index].zone != Zone.Road && MapCase[index].zone != Zone.Etang)
+                if (MapCase[index].occupied == true && 
+                    MapCase[index].zone != Zone.Road && MapCase[index].zone != Zone.Etang && MapCase[index].zone != Zone.Industriel)
                 {
                     count++;
                 }
@@ -206,7 +229,12 @@ public class CityBuild : MonoBehaviour
                 //    MapCase[index].building = Building.Parc;
                 //    MapCase[index].zone = Zone.Parc;
                 //}
-                if (MapCase[index].zone == Zone.Road || MapCase[index].zone == Zone.Etang) continue;
+                if (MapCase[index].zone == Zone.Road || 
+                    MapCase[index].zone == Zone.Etang ||
+                    MapCase[index].zone == Zone.Industriel)
+                {
+                    continue;
+                }
 
                 if (count == neighborHoodSize * neighborHoodSize)
                 {
@@ -228,12 +256,13 @@ public class CityBuild : MonoBehaviour
                 {
                     MapCase[index].building = Building.Parc;
                     MapCase[index].zone = Zone.Parc;
-                    MapCase[index].occuped = true;
+                    MapCase[index].occupied = true;
                 }
             }
         }
         
     }
+
     private void CreateRiver() //nbr de pts de la rivière
     {
         List<Vector3> ptsRiver = new List<Vector3>();
@@ -245,11 +274,12 @@ public class CityBuild : MonoBehaviour
         foreach (var v in bezier(ptsRiver)) {
             int index = ((int)v.y * DimensionSize + (int)v.x);
             if (index >= MapCase.Length) continue;
-            MapCase[index].occuped = true;
+            MapCase[index].occupied = true;
             MapCase[index].zone = Zone.Etang;
-            MapCase[index].building = Building.Parc;
+            MapCase[index].building = Building.Etang;
         }
     }
+
     private void CreateRoads(int spaceBetweenRoad)
     {
         // create road
@@ -261,7 +291,7 @@ public class CityBuild : MonoBehaviour
                 if ((y % spaceBetweenRoad == 0 || x % spaceBetweenRoad == 0) && MapCase[index].zone == Zone.CentreVille)
                 {
                     MapCase[index].zone = Zone.Road;
-                    MapCase[index].occuped = true;
+                    MapCase[index].occupied = true;
                 }
             }
         }

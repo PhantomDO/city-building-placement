@@ -45,15 +45,11 @@ namespace Assets.Scripts
             _builder = GetComponent<CityBuild>();
             _isSetup = false;
 
-            _argsBuffers = new GenericDictionary<Building, List<ComputeBuffer>>
+            _argsBuffers = new GenericDictionary<Building, List<ComputeBuffer>>();
+            foreach (Building value in Enum.GetValues(typeof(Building)))
             {
-                { Building.NaN, new List<ComputeBuffer>() },
-                { Building.Parc, new List<ComputeBuffer>() },
-                { Building.Maison, new List<ComputeBuffer>() },
-                { Building.PetitImmeuble, new List<ComputeBuffer>() },
-                { Building.Immeuble, new List<ComputeBuffer>() },
-                { Building.GrosImmeuble, new List<ComputeBuffer>() }
-            };
+                _argsBuffers.Add(value, new List<ComputeBuffer>());
+            }
         }
 
         public void Update()
@@ -103,7 +99,7 @@ namespace Assets.Scripts
                 {
                     int index = i * _builder.DimensionSize + j;
 
-                    if (_builder.MapCase[index].occuped == true)
+                    if (_builder.MapCase[index].occupied == true)
                     {
                         Gizmos.color = _builder.buildingColor[_builder.MapCase[index].building];
                         Gizmos.DrawCube(new Vector3(i, 0, j), CityCase.GetBuildingSize(_builder.MapCase[index]));
@@ -165,11 +161,11 @@ namespace Assets.Scripts
 
                     MeshProperties props = new MeshProperties();
                     Vector3 scale = CityCase.GetBuildingSize(cityCase);
-                    Vector3 position = new Vector3(x, 0, z);
+                    Vector3 position = new Vector3(x, scale.y / 2, z);
                     Quaternion rotation = Quaternion.identity;
 
                     props.mat = Matrix4x4.TRS(position, rotation, scale);
-                    props.color = cityCase.occuped == true ? _builder.buildingColor[cityCase.building] : Color.clear;
+                    props.color = cityCase.occupied == true ? _builder.buildingColor[cityCase.building] : Color.clear;
                     properties[z * _builder.DimensionSize + x] = props;
                 }
             }
