@@ -158,20 +158,21 @@ public class CityBuild : MonoBehaviour
                 int x = (int)(city.position.x + i * Mathf.Cos(theta));
                 int y = (int)(city.position.y + i * Mathf.Sin(theta));
 
-                float curve = LoiNormale(i, 0, city.etendue) * city.densite;
-
                 int index = y * DimensionSize + x;
                 if (x >= 0 && x < DimensionSize && y >= 0 && y < DimensionSize)
                 {
                     MapCase[index].zone = i < city.superficyRadius * city.partieCentreVille ? Zone.CentreVille : Zone.Residentiel;
-                    if (Random.Range(0.0f, 100.0f) < curve)
+                    if (Random.Range(0.0f, 100.0f) < LoiNormale(i, 0, city.etendue) * city.densite)
                     {
                         MapCase[index].occupied = true;
                     }
 
+                    //creer une zone industrielle :
+                    //- pas dans le centre ville, ni en dehors de la ville (= dans la zone résidentielle)
+                    //- 0.05% de chance d'apparition d'une ZI sur l'un des bâtiments
                     if (MapCase[index].zone == Zone.Residentiel && Random.Range(0f, 1f) >= 0.9995f)
                     {
-                        Debug.Log($"Create zone industriel");
+                        Debug.Log($"Create industrial zone");
                         CreateIndustrialZone(x, y);
                     }
                 }
@@ -204,6 +205,7 @@ public class CityBuild : MonoBehaviour
     {
         int count = 0;
 
+        //compte du nombre de batiments dans un quartier
         for (int k = 0; k < neighborHoodSize + 1; ++k)
         {
             for (int l = 0; l < neighborHoodSize + 1; ++l)
@@ -211,32 +213,38 @@ public class CityBuild : MonoBehaviour
                 int index = (i + k) * DimensionSize + (j + l);
 
                 if (MapCase[index].occupied == true && 
-                    MapCase[index].zone != Zone.Road && MapCase[index].zone != Zone.Etang && MapCase[index].zone != Zone.Industriel)
+                    MapCase[index].zone != Zone.Road && MapCase[index].zone != Zone.Etang)
                 {
                     count++;
                 }
             }
         }
 
+        //type de batiment selon la zone et le nombre de batiment du quartier
         for (int k = 0; k < neighborHoodSize + 1; ++k)
         {
             for (int l = 0; l < neighborHoodSize + 1; ++l)
             {
                 int index = (i + k) * DimensionSize + (j + l);
                 
+                //parc au niveau des routes autour des parcs
                 //if (MapCase[index].zone == Zone.Road && count == 0)
                 //{
                 //    MapCase[index].building = Building.Parc;
                 //    MapCase[index].zone = Zone.Parc;
                 //}
                 if (MapCase[index].zone == Zone.Road || 
-                    MapCase[index].zone == Zone.Etang ||
-                    MapCase[index].zone == Zone.Industriel)
+                    MapCase[index].zone == Zone.Etang)
                 {
                     continue;
                 }
-
-                if (count == neighborHoodSize * neighborHoodSize)
+                
+                if (MapCase[index].zone == Zone.Industriel && MapCase[index].occupied == true)
+                {
+                    MapCase[index].building = Building.Usine;
+                    continue;
+                }
+                if (count == neighborHoodSize * neighborHoodSize && MapCase[index].zone == Zone.CentreVille) //GrosImmeuble only in center
                 {
                     MapCase[index].building = Building.GrosImmeuble;
                 }
@@ -253,6 +261,12 @@ public class CityBuild : MonoBehaviour
                     MapCase[index].building = Building.Maison;
                 }
                 else if (count == 0)
+                {
+                    MapCase[index].building = Building.Etang;
+                    MapCase[index].zone = Zone.Etang ;
+                    MapCase[index].occupied = true;
+                }
+                if (MapCase[index].occupied == false)
                 {
                     MapCase[index].building = Building.Parc;
                     MapCase[index].zone = Zone.Parc;
@@ -273,7 +287,7 @@ public class CityBuild : MonoBehaviour
 
         foreach (var v in bezier(ptsRiver)) {
             int index = ((int)v.y * DimensionSize + (int)v.x);
-            if (index >= MapCase.Length) continue;
+            if (index >= MapCase.Length || index < 0) continue;
             MapCase[index].occupied = true;
             MapCase[index].zone = Zone.Etang;
             MapCase[index].building = Building.Etang;
@@ -288,7 +302,7 @@ public class CityBuild : MonoBehaviour
             for (int x = 0; x < (neighborHoodSize + 1) * neighborHoodCount; ++x) 
             {
                 int index = y * DimensionSize + x;
-                if ((y % spaceBetweenRoad == 0 || x % spaceBetweenRoad == 0) && MapCase[index].zone == Zone.CentreVille)
+                if ((y % spaceBetweenRoad == 0 || x % spaceBetweenRoad == 0) ) //only grid road in center : && MapCase[index].zone == Zone.CentreVille)
                 {
                     MapCase[index].zone = Zone.Road;
                     MapCase[index].occupied = true;

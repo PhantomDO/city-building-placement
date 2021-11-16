@@ -384,7 +384,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   epicentres:
   - {fileID: 1649007182}
-  - {fileID: 1649007183}
   parcDensity: 15
   etangDensity: 20
   neighborHoodSize: 3
@@ -404,7 +403,7 @@ MonoBehaviour:
     - Key: 9
       Value: {r: 0.999694, g: 1, b: 0, a: 1}
     - Key: 10
-      Value: {r: 0.38679248, g: 0.38679248, b: 0.38679248, a: 1}
+      Value: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
     - Key: 11
       Value: {r: 0, g: 0.97979045, b: 1, a: 1}
     keyCollision: 0
@@ -422,8 +421,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   superficyRadius: 200
   etendue: 150
-  densite: 5000
-  position: {x: 10, y: 10}
+  densite: 10000
+  position: {x: 50, y: 50}
   partieCentreVille: 0.2
 --- !u!114 &1649007183
 MonoBehaviour:
@@ -437,8 +436,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d2a1113070a500418ae6b6b3ee4a8b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  superficyRadius: 100
+  superficyRadius: 50
   etendue: 80
-  densite: 100
+  densite: 50
   position: {x: 300, y: 300}
   partieCentreVille: 0.5
