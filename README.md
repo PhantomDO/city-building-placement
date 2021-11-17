@@ -64,7 +64,7 @@ La génération de la ville (fonction [CreateEpicentres](city-building-placement
 Jouer sur les différents paramètres de la classe de la ville (CityClass) permet de modifier les paramètres de la fonction gaussienne, et ainsi modifier la densité ou l'étendue de la ville.
 Partant de cette façon de construire la ville, on peut instancier plusieurs ville dans le rendu.
 
-![image](/images-rapport/inspecteurCity.png "Paramètre des villes")
+![image](/images-rapport/inspecteurCity.PNG "Paramètre des villes")
 
 # Génération des batiments en fonction des zones
 On peut interpréter deux zones occupées collées de plusieurs façons :
