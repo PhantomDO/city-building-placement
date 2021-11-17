@@ -1,0 +1,44 @@
+@startuml
+enum Zone {
+    NaN= -1,
+    Road= 0,
+    CentreVille= 1,
+    Residentiel= 2,
+    Parc= 3,
+    Etang= 4,
+    Industriel= 5,
+}
+enum Building {
+    NaN= -1,
+    Parc= 0,
+    Maison= 1,
+    PetitImmeuble= 3,
+    Immeuble= 6,
+    GrosImmeuble= 9,
+    Usine= 10,
+    Etang= 11,
+}
+class CityCase <<struct>> {
+    + occupied : bool
+    + {static} GetBuildingSize(cityCase:CityCase) : Vector3
+}
+class CityBuild {
+    + neighborHoodSize : int = 3
+    + neighborHoodCount : int = 20
+    + DimensionSize : int <<get>>
+    Start() : void
+    OnDestroy() : void
+    factorielle(n:int) : int
+    berstein(t:float, i:int, n:int) : float
+    bezier(obj:List<Vector3>) : Vector3[]
+}
+class "List`1"<T> {
+}
+class "GenericDictionary`2"<T1,T2> {
+}
+CityCase --> "zone" Zone
+CityCase --> "building" Building
+MonoBehaviour <|-- CityBuild
+CityBuild --> "epicentres<CityClass>" "List`1"
+CityBuild --> "buildingColor<Building,Color>" "GenericDictionary`2"
+@enduml

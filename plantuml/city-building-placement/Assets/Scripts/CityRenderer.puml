@@ -1,0 +1,23 @@
+@startuml
+class MeshProperties <<struct>> {
+    + {static} Size() : int
+}
+class CityRenderer {
+    + drawGizmos : bool = false
+    + Update() : void
+    + OnDisable() : void
+    OnDrawGizmos() : void
+    + Setup() : void
+    + InitializeBuffers() : void
+    + CreateCube(width:float, height:float, depth:float) : Mesh
+}
+class "GenericDictionary`2"<T1,T2> {
+}
+MeshProperties --> "mat" Matrix4x4
+MeshProperties --> "color" Vector4
+MonoBehaviour <|-- CityRenderer
+CityRenderer --> "buildingMeshes<Building,Mesh>" "GenericDictionary`2"
+CityRenderer --> "buildingMaterials<Building,List<Material>>" "GenericDictionary`2"
+CityRenderer --> "material" Material
+CityRenderer --> "computeShader" ComputeShader
+@enduml

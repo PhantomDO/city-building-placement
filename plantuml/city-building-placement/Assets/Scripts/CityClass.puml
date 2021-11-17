@@ -1,0 +1,12 @@
+@startuml
+class CityClass {
+    +  <<event>> OnAttributeUpdate : AttributeUpdate 
+    + superficyRadius : int
+    + etendue : int
+    + densite : int
+    + partieCentreVille : float
+    + OnValidate() : void
+}
+MonoBehaviour <|-- CityClass
+CityClass --> "position" Vector2
+@enduml

@@ -1,0 +1,7 @@
+@startuml
+!include .\\city-building-placement\Assets\Editor\GenericDictionaryPropertyDrawer.puml
+!include .\\city-building-placement\Assets\Scripts\CityBuild.puml
+!include .\\city-building-placement\Assets\Scripts\CityClass.puml
+!include .\\city-building-placement\Assets\Scripts\Rendering\CityRenderer.puml
+!include .\\city-building-placement\Assets\Scripts\Tools\GenericDictionary.puml
+@enduml
