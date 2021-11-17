@@ -48,6 +48,94 @@ Voici les paramètres des zones :
 # Contexte
 
 
+# Rendu Graphique
+
+Pour afficher une grille avec le plus de mesh possible, nous avons optez pour une option disponible dans le moteur Unity, le mesh instancing.
+Nous avons trouvez cette solution dans cette [article](https://toqoz.fyi/thousands-of-meshes.html) qui explique le principe de base d'utilisation ainsi qu'une demo d'un code déjà fonctionnel. Nous avons pu adaptez ce code pour afficher des meshs avec plusieurs subMeshes. Cependant pour rester le plus performant possible nous sommes rester sur une solution avec des cubes (pour les captures d'écran).
+
+Le principe de la méthode DrawMeshInstanceInrect est de charger le mesh sur le GPU afin de le l'instantier N fois dans un seul drawcall au lieu de faire appel à l'instantiation d'object d'Unity (ne fusionne pas les drawcalls d'un même object et plus lourd) pour seulement faire de l'affichage. Cependant, nous n'avons pas de physique sur ces objets. Cette méthode est un wrapper qui permet de ne pas toucher au GPU.
+
+Exemple de structure contenant la couleur et la matrice de transformation de chacun des mesh qui doit être chargé 
+```cs
+public struct MeshProperties
+{
+  public Matrix4x4 mat;
+  public Vector4 color;
+
+  // usefull to get to total size of the struct
+  public static int Size()
+  {
+      return sizeof(float) * 4 * 4 + sizeof(float) * 4;
+  }
+}
+```
+
+Ici un exemple d'initialisation des différent buffer pour chacun de nos batiments.
+```cs
+public void InitializeBuffers()
+{
+    uint[] args = new uint[5] {0, 0, 0, 0, 0};
+
+    // 0 = count of triangles indices
+    // 1 = number of mesh to draw
+    // 2 = submesh starting index
+    // 3 = submesh base offset index
+    foreach (var building in buildingMeshes)
+    {
+        for (int i = 0; i < building.Value.subMeshCount; i++)
+        {
+            args[0] = (uint)building.Value.GetIndexCount(i);
+            args[1] = (uint)(_builder.DimensionSize * _builder.DimensionSize);
+            args[2] = (uint)building.Value.GetIndexStart(i);
+            args[3] = (uint)building.Value.GetBaseVertex(i);
+
+            _argsBuffers[building.Key].Add(new ComputeBuffer(1, 
+                args.Length * sizeof(uint), ComputeBufferType.IndirectArguments));
+            _argsBuffers[building.Key][i].SetData(args);
+        }
+    }
+
+    // Init buffer with grid
+    MeshProperties[] properties = new MeshProperties[_builder.DimensionSize * _builder.DimensionSize];
+    for (uint z = 0; z < _builder.DimensionSize; ++z)
+    {
+        for (uint x = 0; x < _builder.DimensionSize; ++x)
+        {
+            var cityCase = _builder.MapCase[z * _builder.DimensionSize + x];
+
+            MeshProperties props = new MeshProperties();
+            Vector3 scale = CityCase.GetBuildingSize(cityCase);
+            Vector3 position = new Vector3(x, scale.y / 2, z);
+            Quaternion rotation = Quaternion.identity;
+
+            props.mat = Matrix4x4.TRS(position, rotation, scale);
+            props.color = cityCase.occupied == true 
+              ? _builder.buildingColor[cityCase.building] : Color.clear;
+            properties[z * _builder.DimensionSize + x] = props;
+        }
+    }
+
+    _meshPropertiesBuffer = new ComputeBuffer(
+        (int)(_builder.DimensionSize * _builder.DimensionSize), 
+        MeshProperties.Size());
+
+    _meshPropertiesBuffer.SetData(properties);
+    material.SetBuffer("_Properties", _meshPropertiesBuffer);
+}
+```
+
+Ici la fonction qui est appelé pour chaque type de batiments. (Update)
+```cs
+foreach (var mesh in buildingMeshes)
+{
+    for (int i = 0; i < mesh.Value.subMeshCount; i++)
+    {
+        Graphics.DrawMeshInstancedIndirect(mesh.Value, i, 
+              material, _bounds, _argsBuffers[mesh.Key][i]);
+    }
+}
+```
+
 # Definition
 
 # Architecture
