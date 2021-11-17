@@ -57,10 +57,24 @@ La génération de la ville (fonction [CreateEpicentres](city-building-placement
 
 ![image](/images-rapport/loi-gaussienne.png "Remplissage avec la fonction gaussienne")
 
+Jouer sur les différents paramètres de la classe de la ville (CityClass) permet de modifier les paramètres de la fonction gaussienne, et ainsi modifier la densité ou l'étendue de la ville.
 Partant de cette façon de construire la ville, on peut instancier plusieurs ville dans le rendu.
 
+![image](/images-rapport/inspecteurCity.png "Paramètre des villes")
 
-# Generation des batiments en fonction des zones
+# Génération des batiments en fonction des zones
+On peut interpréter deux zones occupées collées de plusieurs façons :
+- C'est un bâtiment plus grand : les deux zones occupées fusionnent ;
+- C'est une zone dense, les bâtiments sont plus hauts.
+
+Intuitivement, on compte le nombre de bâtiments dans la zone d'un certain rayon autour d'un bâtiment ; on supprime ces bâtiments et on agrandit proportionnellement le bâtiment central. Cette méthode, bien que particulièrement pertinente, s'est révélé lourde à implémenter.
+
+Lors de la séparation de la carte en quartiers, nous avons appliqué une autre méthode ([CreateBuildings](city-building-placement/Assets/Scripts/CityBuild.cs#L201)), plus simple mais moins précise :
+* Si une zone est complètement occupé, c'est qu'elle est très dense, les immeubles seront plus hauts ;
+* Si la zone est remplie aux 2/3 ou plus, ce sont des immeubles moyens,
+* Si la zone est remplie à 1/3 ou plus, ce sont de petits immeubles,
+* Si la zone contient moins de 1/3 de zones occupées, ce sont des maisons,
+* Sinon c'est un parc.
 
 
 
@@ -68,6 +82,8 @@ Partant de cette façon de construire la ville, on peut instancier plusieurs vil
 
 Pour compléter le vide entre les batiments, nous avons généré une grille entre les quartiers de n*n.
 Étant donné le projet se focalise sur le placement, la grille des routes est très simple et sert de découpage de la grille en carré.
+
+Plus tard, ce découpage en quartiers nous a permit de choisir les types de bâtiments selon le nombre de zones occupées dans le quartier.
 
 # Generation de parc
 Les parcs sont de grands espaces sans bâtiments. Ainsi, les quartiers qui n'ont pas de bâtiments deviennent des parcs.
@@ -80,10 +96,13 @@ Comme pour la génération de quartier residentiel, on génèr selon un très fa
 Pour afficher une grille avec le plus de mesh possible plusieurs options étaient disponible :
 
 * Instanciation de prefab unity ([pool d'objet](https://camo.githubusercontent.com/639c3d03006cd247cc06b3fcc35efb20c2400e311a08d76b15674149f0d4d766/68747470733a2f2f6d65646961322e67697068792e636f6d2f6d656469612f6c5162466a396c3754326c41757954576a4d2f67697068792e676966))
+
 ![image](https://camo.githubusercontent.com/639c3d03006cd247cc06b3fcc35efb20c2400e311a08d76b15674149f0d4d766/68747470733a2f2f6d65646961322e67697068792e636f6d2f6d656469612f6c5162466a396c3754326c41757954576a4d2f67697068792e676966)
 * Utilisation des gizmos pour afficher des primitives simples
+
 ![image](/images-rapport/drawWithGizmos.PNG "Affichage avec les gizmos")
 * Utilisation du GPU instancing de mesh ([image de l'article](https://toqoz.fyi/assets/2019_compute_movement.gif))
+
 ![image](https://toqoz.fyi/assets/2019_compute_movement.gif)
 
 
