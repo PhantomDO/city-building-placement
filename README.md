@@ -143,6 +143,9 @@ foreach (var mesh in buildingMeshes)
 # Definition
 
 # Architecture
+
+[Affichage de diagram puml dans github](https://stackoverflow.com/questions/32203610/how-to-integrate-uml-diagrams-into-gitlab-or-github/32771815#32771815)
+
 ## CityClass
 
 ![CityClass](http://www.plantuml.com/plantuml/png/TOv1giCm30Nt_nI_1uYrxoebtRVG4oYoY0MsR2oPqjlNEK1NmuFXCQivTXyb_rr4AO_8_yczsHMWupiSucdimxXJLMVrGBN0Cw5wBVS7aFXdsOVaA7eiBIDnONKeA0fpwddzqxgPiHkyg4kRtAQsPJGBxGnQMUFa5m00)
