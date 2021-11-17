@@ -1,4 +1,4 @@
-@startuml
+@startuml CityRenderer
 class MeshProperties <<struct>> {
     + {static} Size() : int
 }

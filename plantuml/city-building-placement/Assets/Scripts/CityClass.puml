@@ -1,6 +1,6 @@
-@startuml
+@startuml CityClass
 class CityClass {
-    +  <<event>> OnAttributeUpdate : AttributeUpdate 
+    +  <<event>> OnAttributeUpdate : AttributeUpdate
     + superficyRadius : int
     + etendue : int
     + densite : int

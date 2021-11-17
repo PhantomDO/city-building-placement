@@ -1,4 +1,4 @@
-@startuml
+@startuml CityBuild
 enum Zone {
     NaN= -1,
     Road= 0,
