@@ -1,6 +1,8 @@
 # Création d'une ville
 Ce projet Unity permet la génération procédurale d'une ville, dont le placements des différents éléments constituants une ville. Vous trouverez dans le markdown le travail de recherche.
 
+[Presentation pptx](https://1drv.ms/p/s!AtdMxyMzK-l-g_YaX9siiuPIIg3-tg?e=iuZEN4)
+
  ![image](/images-rapport/multipleCityGeneration.PNG "Exemple de generation")
 # Publications et pistes de recherche
 
@@ -136,8 +138,6 @@ foreach (var mesh in buildingMeshes)
     }
 }
 ```
-
-
 
 
 # Definition
