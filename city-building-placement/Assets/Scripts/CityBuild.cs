@@ -74,9 +74,6 @@ public class CityBuild : MonoBehaviour
 {
     public List<CityClass> epicentres;
 
-    [Range(0, 100)] public int parcDensity = 15;
-    [Range(0, 100)] public int etangDensity = 20;
-
     public int neighborHoodSize = 3;
     public int neighborHoodCount = 20;
 
@@ -125,8 +122,6 @@ public class CityBuild : MonoBehaviour
 
     private void CreateCity(CityClass city)
     {
-        
-
         foreach (var ville in epicentres)
         {
             CreateEpicentres(ville);
@@ -151,7 +146,7 @@ public class CityBuild : MonoBehaviour
 
     private void CreateEpicentres(CityClass city)
     {
-        for (int i = 0; i < city.superficyRadius; ++i)
+        for (float i = 0; i < city.superficyRadius; i+=0.1f)
         {
             for (float theta = 0; theta < 2 * Mathf.PI; theta += 0.01f)
             {
@@ -161,7 +156,9 @@ public class CityBuild : MonoBehaviour
                 int index = y * DimensionSize + x;
                 if (x >= 0 && x < DimensionSize && y >= 0 && y < DimensionSize)
                 {
-                    MapCase[index].zone = i < city.superficyRadius * city.partieCentreVille ? Zone.CentreVille : Zone.Residentiel;
+                    if(MapCase[index].zone != Zone.CentreVille)
+                        MapCase[index].zone = i < city.superficyRadius * city.partieCentreVille ? Zone.CentreVille : Zone.Residentiel;
+
                     if (Random.Range(0.0f, 100.0f) < LoiNormale(i, 0, city.etendue) * city.densite)
                     {
                         MapCase[index].occupied = true;
@@ -170,7 +167,7 @@ public class CityBuild : MonoBehaviour
                     //creer une zone industrielle :
                     //- pas dans le centre ville, ni en dehors de la ville (= dans la zone résidentielle)
                     //- 0.05% de chance d'apparition d'une ZI sur l'un des bâtiments
-                    if (MapCase[index].zone == Zone.Residentiel && Random.Range(0f, 1f) >= 0.9995f)
+                    if (MapCase[index].zone == Zone.Residentiel && Random.Range(0f, 1f) >= 0.999995f)
                     {
                         Debug.Log($"Create industrial zone");
                         CreateIndustrialZone(x, y);
@@ -183,7 +180,7 @@ public class CityBuild : MonoBehaviour
     private void CreateIndustrialZone(int posX, int posY)
     {
         // TODO : faire la zone
-        float radius = Random.Range(0.01f, 0.08f);
+        float radius = Random.Range(0.05f, 0.15f);
 
         for (float i = 0; i < radius; i+=0.01f)
         {
@@ -244,7 +241,13 @@ public class CityBuild : MonoBehaviour
                     MapCase[index].building = Building.Usine;
                     continue;
                 }
-                if (count == neighborHoodSize * neighborHoodSize && MapCase[index].zone == Zone.CentreVille) //GrosImmeuble only in center
+                if (MapCase[index].occupied == false && MapCase[index].zone != Zone.NaN) //case dans la ville non occupée
+                {
+                    MapCase[index].building = Building.Parc;
+                    MapCase[index].zone = Zone.Parc;
+                    MapCase[index].occupied = true;
+                }
+                else if (count == neighborHoodSize * neighborHoodSize && MapCase[index].zone == Zone.CentreVille) //GrosImmeuble only in center
                 {
                     MapCase[index].building = Building.GrosImmeuble;
                 }
@@ -260,18 +263,7 @@ public class CityBuild : MonoBehaviour
                 {
                     MapCase[index].building = Building.Maison;
                 }
-                else if (count == 0)
-                {
-                    MapCase[index].building = Building.Etang;
-                    MapCase[index].zone = Zone.Etang ;
-                    MapCase[index].occupied = true;
-                }
-                if (MapCase[index].occupied == false)
-                {
-                    MapCase[index].building = Building.Parc;
-                    MapCase[index].zone = Zone.Parc;
-                    MapCase[index].occupied = true;
-                }
+                
             }
         }
         
@@ -282,7 +274,10 @@ public class CityBuild : MonoBehaviour
         List<Vector3> ptsRiver = new List<Vector3>();
 
         ptsRiver.Add(new Vector3(0, Random.Range(0, DimensionSize - 1), 0));
-        ptsRiver.Add(epicentres[0].position);
+		foreach (var epicenter in epicentres)
+		{
+            ptsRiver.Add(epicenter.position);
+        }
         ptsRiver.Add(new Vector3(DimensionSize, Random.Range(0, DimensionSize - 1),0));
 
         foreach (var v in bezier(ptsRiver)) {
@@ -294,6 +289,7 @@ public class CityBuild : MonoBehaviour
         }
     }
 
+    
     private void CreateRoads(int spaceBetweenRoad)
     {
         // create road
@@ -302,7 +298,7 @@ public class CityBuild : MonoBehaviour
             for (int x = 0; x < (neighborHoodSize + 1) * neighborHoodCount; ++x) 
             {
                 int index = y * DimensionSize + x;
-                if ((y % spaceBetweenRoad == 0 || x % spaceBetweenRoad == 0) ) //only grid road in center : && MapCase[index].zone == Zone.CentreVille)
+                if ((y % spaceBetweenRoad == 0 || x % spaceBetweenRoad == 0) && MapCase[index].zone != Zone.NaN)
                 {
                     MapCase[index].zone = Zone.Road;
                     MapCase[index].occupied = true;
@@ -310,7 +306,11 @@ public class CityBuild : MonoBehaviour
             }
         }
     }
+    
 
+    /*  Création zone rural, non utilisé
+    [Range(0, 100)] public int parcDensity = 15;
+    [Range(0, 100)] public int etangDensity = 20;
     private void CreateRuralZone(CityClass city)
     {
         var center = new Vector2Int(MapCase.GetLength(0) / 2 + 1, MapCase.GetLength(1) / 2 + 1);
@@ -335,6 +335,7 @@ public class CityBuild : MonoBehaviour
             countY++;
         }
     }
+    */
 
     private float LoiNormale(float x, float esperance, float etendue)
 	{
@@ -357,7 +358,7 @@ public class CityBuild : MonoBehaviour
         List<Vector3> pts = new List<Vector3>();
         int n = obj.Count; //nbr de points
 
-        for (float t = 0; t <= 1.1; t += 0.01f)
+        for (float t = 0; t <= 1.1; t += 0.001f)
         {
             Vector3 p = Vector3.zero;
             for (int i = 0; i < n; i++)
