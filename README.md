@@ -263,14 +263,14 @@ foreach (var mesh in buildingMeshes)
 # Architecture
 ## CityClass
 
-![CityClass](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.github.com/PhantomDO/city-building-placement/blob/main/plantuml/city-building-placement/Assets/Scripts/CityClass.puml)
+![CityClass](http://www.plantuml.com/plantuml/png/TOv1giCm30Nt_nI_1uYrxoebtRVG4oYoY0MsR2oPqjlNEK1NmuFXCQivTXyb_rr4AO_8_yczsHMWupiSucdimxXJLMVrGBN0Cw5wBVS7aFXdsOVaA7eiBIDnONKeA0fpwddzqxgPiHkyg4kRtAQsPJGBxGnQMUFa5m00)
 
 ## CityBuild
 
-![CityBuild](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.github.com/PhantomDO/city-building-placement/blob/main/plantuml/city-building-placement/Assets/Scripts/CityBuild.puml)
+![CityBuild](http://www.plantuml.com/plantuml/png/TSvD2WCX38RXVK_H7c3Clglfpxw5di29OGne51CflNtr0BDw2Jo4RrNppNfEfmiBfXxe7CsgNW6Q_xgTBVQjApKiOYJci6HuHozMylC5oFPRjiufiEnBJHuf3mNPiy0uPRu-L3TLCeKFDgwZZy7kKxaw1wqaOVGF)
 ## CityRenderer
 
-![CityRenderer](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.github.com/PhantomDO/city-building-placement/blob/main/plantuml/city-building-placement/Assets/Scripts/CityRenderer.puml)
+![CityRenderer](http://www.plantuml.com/plantuml/png/TOv1hi8m30Nt_nIV0xJUiog2FGXEaBfMOobn8jiHulQu1s0r6cdqz1Rpf3vg-JknO1aR_MVtRcS0JUzvPyzZ7KQAJPp4PsmL7Zc9jtgx0x9_fdLmsLZsgPU4LAE2cbWWL8xfdzN5ZDpWXSezU8tiIRAHaixz-BI41Ry0)
 
 # Résultats
 
