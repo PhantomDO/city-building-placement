@@ -1,7 +1,11 @@
-# Création d'une ville
+# Spécifications
+    Project Version : Unity 2020.3.22f1
+
+  # Création d'une ville
+
 Ce projet Unity permet la génération procédurale d'une ville, dont le placements des différents éléments constituants une ville. Vous trouverez dans le markdown le travail de recherche.
 
-[Presentation pptx](https://1drv.ms/p/s!AtdMxyMzK-l-g_YaX9siiuPIIg3-tg?e=iuZEN4)
+[Presentation pdf](M2_GENERATION_PROCEDURALE_VILLE_FEUILLASTRE_KOCH.pdf)
 
  ![image](/images-rapport/multipleCityGeneration.PNG "Exemple de generation")
 # Publications et intuitions
@@ -80,16 +84,21 @@ Lors de la séparation de la carte en quartiers, nous avons appliqué une autre 
 
 # Generation de route simple
 
-Afin de structurer la ville, nous avons généré une grille de routes entre les quartiers de n*n.
-Étant donné le projet se focalise sur le placement, la grille des routes est très simple et sert de découpage de la grille en quartiers carrés.
+Afin de structurer la ville, nous avons généré une grille de routes entre les quartiers de n*n (fonction [CreateRoads](city-building-placement/Assets/Scripts/CityBuild.cs#L293)) (taille et nombre des quartiers modifiables dans les paramètres du component CityBuild).
+Puisque le projet se focalise principalement sur le placement des différents éléments d'une ville, la grille des routes est très simple et sert de découpage de la grille en quartiers carrés.
 
 Plus tard, ce découpage en quartiers nous a permit de choisir les types de bâtiments selon le nombre de zones occupées dans le quartier.
 
-# Generation de parc
+# Generation de parc et de rivière
 Les parcs sont de grands espaces sans bâtiments. Ainsi, les quartiers qui n'ont pas de bâtiments deviennent des parcs.
 
+Souvent, une rivière traverse une ville. Ainsi, crée dans la fonction [CreateRiver](city-building-placement/Assets/Scripts/CityBuild.cs#L272), la rivière suit une courbe de bézier, le premier point étant une position aléatoire sur l'un des côté de la carte, les points au milieu sont les positions des épicentres des villes, et le dernier points est une position aléatoire de l'autre côté de la carte.
+
 # Generation des zones industriels
-Comme pour la génération de quartier residentiel, on génèr selon un très faible pourcentage dans les zones residentiel des zones industriels avec un très faible radius puis dans la génération de batiments on place des usines.
+Les zones industrielles ne peuvent pas être placées dans le centre-ville.
+
+Pendant la création de la zone résidentielle, la zone attribuée à la case de la grille a une très faible chance de se transformer en quartier industriel.
+Puis, on génère autour de ce point une zone industrielle avec un très faible radius (fonction [CreateIndustrialZone](city-building-placement/Assets/Scripts/CityBuild.cs#L180)) puis dans la génération de batiments on place des usines dans les zones.
 
 # Rendu Graphique
 
@@ -106,13 +115,13 @@ Pour afficher une grille avec le plus de mesh possible plusieurs options étaien
 ![image](https://thumbs.gfycat.com/HatefulNearBuckeyebutterfly-size_restricted.gif)
 
 
-La dernière options à été choisi. Un exemple de cette solution trouvé dans cette [article](https://toqoz.fyi/thousands-of-meshes.html) explique le principe de base d'utilisation ainsi qu'une demonstration d'un code déjà fonctionnel. Cependant pour rester le plus performant possible, nous sommes restés sur une solution avec des cubes en lieu et place de mesh avec plusieurs subMeshes.
+La dernière option à été choisie. Un exemple de cette solution, trouvée dans cette [article](https://toqoz.fyi/thousands-of-meshes.html), explique le principe de base d'utilisation ainsi qu'une demonstration d'un code déjà fonctionnel. Cependant pour rester le plus performant possible, nous sommes restés sur une solution avec des cubes en lieu et place de mesh avec plusieurs subMeshes.
 
-Le principe de la méthode DrawMeshInstanceInrect est de charger le mesh sur le GPU afin de le l'instancier N fois dans un seul drawcall au lieu de faire appel à l'instanciation d'objet d'Unity (ne fusionne pas les drawcalls d'un même objet et plus lourd) pour seulement faire de l'affichage. Cependant, nous n'avons pas de physique sur ces objets. Cette méthode est un wrapper qui permet de ne pas toucher directement au GPU.
+Le principe de la méthode DrawMeshInstanceInrect est de charger le mesh sur le GPU afin de l'instancier N fois dans un seul drawCall au lieu de faire appel à l'instanciation d'objet d'Unity (ne fusionne pas les drawcalls d'un même objet et plus lourd) pour seulement faire de l'affichage. Cependant, nous n'avons pas de physique sur ces objets. Cette méthode est un wrapper qui permet de ne pas toucher directement au GPU.
 
-Cela passe par la création d'un [shader](city-building-placement/Assets/Material/Custom_InstancedIndirectColor.mat) qui va lire nos données envoyées (MeshProperties) afin d'afficher dans le moteur les meshs a leurs transformation et couleur respectives. Ce shader est utiliser via un material que nous passons à notre class de rendu.
+Cela passe par la création d'un [shader](city-building-placement/Assets/Material/Custom_InstancedIndirectColor.mat) qui va lire nos données envoyées (MeshProperties) afin d'afficher dans le moteur les meshs a leurs transformation et couleur respectives. Ce shader est utilisé via un material passé à la classe de rendu.
 
-
+<br/>
 
 [Exemple de structure contenant la couleur et la matrice de transformation de chacun des mesh qui doit être chargé](city-building-placement/Assets/Scripts/Rendering/CityRenderer.cs#L8)
 ```cs
