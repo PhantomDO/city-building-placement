@@ -67,34 +67,6 @@ Le principe de la méthode DrawMeshInstanceInrect est de charger le mesh sur le 
     <ul style="elements">
       <ul>
         <li>
-          <i class="i0" tooltip="public struct"></i>
-          <span>MeshProperties </span>
-          <span class="t0">(in Assets.Scripts)</span>
-        </li>
-        <ul>
-          <li>
-            <i class="i1" tooltip="public serialised field"></i>
-            <span>mat:</span>
-            <span class="t1">Matrix4x4</span>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <i class="i1" tooltip="public serialised field"></i>
-            <span>color:</span>
-            <span class="t1">Vector4</span>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <i class="i2" tooltip="public static method"></i>
-            <span>Size():</span>
-            <span class="t1">int</span>
-          </li>
-        </ul>
-      </ul>
-      <ul>
-        <li>
           <i class="i3" tooltip="public class"></i>
           <span>CityRenderer </span>
           <span class="t0">(in Assets.Scripts)</span>
@@ -196,40 +168,6 @@ Le principe de la méthode DrawMeshInstanceInrect est de charger le mesh sur le 
           </li>
         </ul>
       </ul>
-      <ul>
-        <li>
-          <span>Unity</span>
-        </li>
-      </ul>
-      <ul>
-        <ul>
-          <li>
-            <i class="i7" tooltip="private event function"></i>
-            <span>Awake():</span>
-            <span class="t1">void</span>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <i class="i7" tooltip="public event function"></i>
-            <span>Update():</span>
-            <span class="t1">void</span>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <i class="i7" tooltip="public event function"></i>
-            <span>OnDisable():</span>
-            <span class="t1">void</span>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <i class="i6" tooltip="private event function"></i>
-            <span>OnDrawGizmos():</span>
-            <span class="t1">void</span>
-          </li>
-        </ul>
         <br>
   </ul>
 </html>
