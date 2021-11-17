@@ -263,9 +263,14 @@ foreach (var mesh in buildingMeshes)
 # Architecture
 ## CityClass
 
+![CityClass](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.github.com/PhantomDO/city-building-placement/blob/main/plantuml/city-building-placement/Assets/Scripts/CityClass.puml)
 
-## CityBuilder
+## CityBuild
+
+![CityBuild](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.github.com/PhantomDO/city-building-placement/blob/main/plantuml/city-building-placement/Assets/Scripts/CityBuild.puml)
 ## CityRenderer
+
+![CityRenderer](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.github.com/PhantomDO/city-building-placement/blob/main/plantuml/city-building-placement/Assets/Scripts/CityRenderer.puml)
 
 # Résultats
 
