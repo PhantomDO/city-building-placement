@@ -63,6 +63,8 @@ plusieurs centre ville
 
 # Generation des batiments en fonction des zones
 
+
+
 # Generation de route simple
 
 Pour compléter le vide entre les batiments, nous avons généré une grille entre les quartiers.
@@ -74,7 +76,7 @@ Parfois, on appercevait des quartiers entièrement vide, nous avons compléter c
 
 # Generation des zones industriels
 
-Comme pour la génération
+Comme pour la génération de quartier residentiel, on génèr selon un très faible pourcentage dans les zones residentiel des zones industriels avec un très faible radius puis dans la génération de batiments on place des usines.
 
 # Rendu Graphique
 
