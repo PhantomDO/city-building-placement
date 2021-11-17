@@ -80,8 +80,8 @@ Lors de la séparation de la carte en quartiers, nous avons appliqué une autre 
 
 # Generation de route simple
 
-Pour compléter le vide entre les batiments, nous avons généré une grille entre les quartiers de n*n.
-Étant donné le projet se focalise sur le placement, la grille des routes est très simple et sert de découpage de la grille en carré.
+Afin de structurer la ville, nous avons généré une grille de routes entre les quartiers de n*n.
+Étant donné le projet se focalise sur le placement, la grille des routes est très simple et sert de découpage de la grille en quartiers carrés.
 
 Plus tard, ce découpage en quartiers nous a permit de choisir les types de bâtiments selon le nombre de zones occupées dans le quartier.
 
@@ -101,9 +101,9 @@ Pour afficher une grille avec le plus de mesh possible plusieurs options étaien
 * Utilisation des gizmos pour afficher des primitives simples
 
 ![image](/images-rapport/drawWithGizmos.PNG "Affichage avec les gizmos")
-* Utilisation du GPU instancing de mesh ([image de l'article](https://toqoz.fyi/assets/2019_compute_movement.gif))
+* Utilisation du GPU instancing de mesh
 
-![image](https://toqoz.fyi/assets/2019_compute_movement.gif)
+![image](https://thumbs.gfycat.com/HatefulNearBuckeyebutterfly-size_restricted.gif)
 
 
 La dernière options à été choisi. Un exemple de cette solution trouvé dans cette [article](https://toqoz.fyi/thousands-of-meshes.html) explique le principe de base d'utilisation ainsi qu'une demonstration d'un code déjà fonctionnel. Cependant pour rester le plus performant possible, nous sommes restés sur une solution avec des cubes en lieu et place de mesh avec plusieurs subMeshes.
