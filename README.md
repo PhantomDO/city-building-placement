@@ -12,7 +12,7 @@ Ce projet Unity permet la génération procédurale d'une ville, dont le placeme
 "ProbableTrain", 2020](https://github.com/ProbableTrain/MapGenerator)
 
 ## Premières intuitions
-La première intuition a été de baser la création de la ville sur une image représentant des routes. En utilisant l'[algorithme de remplissage par diffusion](https://fr.wikipedia.org/wiki/Algorithme_de_remplissage_par_diffusion), chaque quartier séparé par une route peut être nommé d'un type de zone.
+La première intuition a été de baser la création de la ville sur une texture 2D représentant des routes. En utilisant l'[algorithme de remplissage par diffusion](https://fr.wikipedia.org/wiki/Algorithme_de_remplissage_par_diffusion), chaque quartier séparé par une route peut être nommé d'un type de zone.
 
  ![image](/city-building-placement/Assets/Map/road_lyon_128.jpg "Routes de Lyon")
 
@@ -41,13 +41,11 @@ Voici les paramètres des zones :
   * Zone travail (entreprise)
     * Non implémentée
   * Espace vert
-    * Toutes les
+    * Tous les quartiers qui n'ont pas de bâtiments
     * Aléatoire, + grand en s'éloignant du centre ville (non implémenté)
   * Zone d'eau
     * Cours d'eau passant dans la ville
     * Dans les espaces verts (non implémenté)
- * Routes
-   * Entre les batiments (séparés par des chunks de N * N)
 
 De plus, les bâtiments présents dans une ville diffèrents selon leur emplacement. Ainsi, un batiment en centre ville sera un immeuble haut, et plus on s'écarte du centre ville, moins les bâtiments sont hauts. De la même façon, il y a plus de bâtiment au centre de la ville, et plus on s'éloigne moins la ville est dense.
 
@@ -55,10 +53,11 @@ De plus, les bâtiments présents dans une ville diffèrents selon leur emplacem
 
 Cette problématique nous a fait penser à une distribution gaussienne. Une [fonction gaussienne](https://fr.wikipedia.org/wiki/Fonction_gaussienne) a dont été utilisée afin d'instancier les bâtiments de la ville (plus dense au centre, plus étendu sur les bords).
 
+La génération de la ville (fonction [CreateEpicentres](city-building-placement/Assets/Scripts/CityBuild.cs#L147)) se fait en créant des cercles successifs jusqu'à la taille du rayon de la ville. Pour chacun des points de ce cercle, on le place dans la grille en lui donnant un type de zone (centre-ville si il est au centre, résidentiel sinon). Puis, selon la fonction gaussienne, la position a une certaine probabilité qu'elle devienne occupée, et qu'il y aura un bâtiment sur cette case.
 
+![image](/images-rapport/loi-gaussienne.png "Remplissage avec la fonction gaussienne")
 
-plusieurs centre ville
-
+Partant de cette façon de construire la ville, on peut instancier plusieurs ville dans le rendu.
 
 
 # Generation des batiments en fonction des zones
@@ -67,15 +66,13 @@ plusieurs centre ville
 
 # Generation de route simple
 
-Pour compléter le vide entre les batiments, nous avons généré une grille entre les quartiers.
+Pour compléter le vide entre les batiments, nous avons généré une grille entre les quartiers de n*n.
 Étant donné le projet se focalise sur le placement, la grille des routes est très simple et sert de découpage de la grille en carré.
 
 # Generation de parc
-
-Parfois, on appercevait des quartiers entièrement vide, nous avons compléter ces quartiers par des parcs.
+Les parcs sont de grands espaces sans bâtiments. Ainsi, les quartiers qui n'ont pas de bâtiments deviennent des parcs.
 
 # Generation des zones industriels
-
 Comme pour la génération de quartier residentiel, on génèr selon un très faible pourcentage dans les zones residentiel des zones industriels avec un très faible radius puis dans la génération de batiments on place des usines.
 
 # Rendu Graphique
@@ -98,7 +95,7 @@ Cela passe par la création d'un [shader](city-building-placement/Assets/Materia
 
 
 
-[Exemple de structure contenant la couleur et la matrice de transformation de chacun des mesh qui doit être chargé](city-building-placement\Assets\Scripts\Rendering\CityRenderer.cs#L8)
+[Exemple de structure contenant la couleur et la matrice de transformation de chacun des mesh qui doit être chargé](city-building-placement/Assets/Scripts/Rendering/CityRenderer.cs#L8)
 ```cs
 public struct MeshProperties
 {
@@ -113,7 +110,7 @@ public struct MeshProperties
 }
 ```
 
-[Ici un exemple d'initialisation des différents buffer pour chacun des bâtiments.](city-building-placement\Assets\Scripts\Rendering\CityRenderer.cs#L130)
+[Ici un exemple d'initialisation des différents buffer pour chacun des bâtiments.](city-building-placement/Assets/Scripts/Rendering/CityRenderer.cs#L130)
 ```cs
 public void InitializeBuffers()
 {
@@ -168,7 +165,7 @@ public void InitializeBuffers()
 }
 ```
 
-[Ici la fonction d'affichage appelé pour chaque type de bâtiments.](city-building-placement\Assets\Scripts\Rendering\CityRenderer.cs#L55)
+[Ici la fonction d'affichage appelé pour chaque type de bâtiments.](city-building-placement/Assets/Scripts/Rendering/CityRenderer.cs#L55)
 ```cs
 foreach (var mesh in buildingMeshes)
 {
