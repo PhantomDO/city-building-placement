@@ -118,7 +118,8 @@ public void InitializeBuffers()
     _meshPropertiesBuffer = new ComputeBuffer(
         (int)(_builder.DimensionSize * _builder.DimensionSize), 
         MeshProperties.Size());
-
+    
+    // give all the properties generated before to the struct in the shader
     _meshPropertiesBuffer.SetData(properties);
     material.SetBuffer("_Properties", _meshPropertiesBuffer);
 }
