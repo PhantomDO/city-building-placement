@@ -4,25 +4,29 @@ Ce projet Unity permet la génération procédurale d'une ville, dont le placeme
 [Presentation pptx](https://1drv.ms/p/s!AtdMxyMzK-l-g_YaX9siiuPIIg3-tg?e=iuZEN4)
 
  ![image](/images-rapport/multipleCityGeneration.PNG "Exemple de generation")
-# Publications et pistes de recherche
+# Publications et intuitions
 
-*  [Algorithme de remplissage par diffusion](https://fr.wikipedia.org/wiki/Algorithme_de_remplissage_par_diffusion)
-* [Thèse Generation procédurale de monde](https://tel.archives-ouvertes.fr/tel-00841373/document)
-* [Courbe gaussiene](https://fr.wikipedia.org/wiki/Fonction_gaussienne)
-* [Marching square](https://fr.wikipedia.org/wiki/Marching_squares)
-* [Marching square in Unity](https://catlikecoding.com/unity/tutorials/marching-squares-series/)
-* [Map Generator (american city)](https://github.com/ProbableTrain/MapGenerator)
+## Travaux de recherches précédents
+* [Generation procédurale de monde, Adrien Peytavie, 2013](https://tel.archives-ouvertes.fr/tel-00841373/document)
+* [Map Generator : Create procedural American-style cities, Keir
+"ProbableTrain", 2020](https://github.com/ProbableTrain/MapGenerator)
 
-## Premières pistes
+## Premières intuitions
+La première intuition a été de baser la création de la ville sur une image représentant des routes. En utilisant l'[algorithme de remplissage par diffusion](https://fr.wikipedia.org/wiki/Algorithme_de_remplissage_par_diffusion), chaque quartier séparé par une route peut être nommé d'un type de zone.
 
-plusieurs centre ville
-utiliser une courbe gaussienne pour la densité des maisons/hauteur des batiments
-height map
+ ![image](/city-building-placement/Assets/Map/road_lyon_128.jpg "Routes de Lyon")
 
+Une autre intuition, plus simple, est basée sur une grille représentant une ville, dont on a rempli chaque case par la dénomination d'une zone (centre-ville, résidentiel, industriel...).
+Puis, en utilisant l'algorithme [Marching square](https://fr.wikipedia.org/wiki/Marching_squares) (utilisation de l'algorithme [Marching square dans Unity](https://catlikecoding.com/unity/tutorials/marching-squares-series/)), on peut délimiter ces zones non plus selon la grille mais selon les coordonnées de la carte.
 
-# Content
-
-Nous avons découpé ces élements en zone et rempli notre grille par des batiments/parc/eau, etc...
+# Règles de générations
+## Elements d'une ville
+Selon nos connaissances et nos observations, plusieurs règles de générations ont été décidées pour le remplissage de la grille  :
+* Une ville est de forme ronde.
+* La zone "Centre-ville" est unique et elle est au centre de la ville.
+* Autour du centre-ville, la zone "résidentiel" s'étend sur tout le reste de la ville.
+* Une zone "industrielle" est forcément en dehors du centre-ville.
+* Une zone de "bureau" est forcément en centre-ville.
 
 Voici les paramètres des zones :
 
@@ -37,27 +41,62 @@ Voici les paramètres des zones :
   * Zone travail (entreprise)
     * Non implémentée
   * Espace vert
-    * Aléatoire, + grand en s'éloignant du centre ville
-    * Radius : 0.2 - 1.0
-    * Area *= Radius
+    * Toutes les
+    * Aléatoire, + grand en s'éloignant du centre ville (non implémenté)
   * Zone d'eau
-    * Dans les espaces verts
-    * Radius : 0.2 - 1.0
-    * Area *= Radius
+    * Cours d'eau passant dans la ville
+    * Dans les espaces verts (non implémenté)
  * Routes
    * Entre les batiments (séparés par des chunks de N * N)
 
-# Contexte
+De plus, les bâtiments présents dans une ville diffèrents selon leur emplacement. Ainsi, un batiment en centre ville sera un immeuble haut, et plus on s'écarte du centre ville, moins les bâtiments sont hauts. De la même façon, il y a plus de bâtiment au centre de la ville, et plus on s'éloigne moins la ville est dense.
 
+# Distribution gausienne
+
+Cette problématique nous a fait penser à une distribution gaussienne. Une [fonction gaussienne](https://fr.wikipedia.org/wiki/Fonction_gaussienne) a dont été utilisée afin d'instancier les bâtiments de la ville (plus dense au centre, plus étendu sur les bords).
+
+
+
+plusieurs centre ville
+
+
+
+# Generation des batiments en fonction des zones
+
+# Generation de route simple
+
+Pour compléter le vide entre les batiments, nous avons généré une grille entre les quartiers.
+Étant donné le projet se focalise sur le placement, la grille des routes est très simple et sert de découpage de la grille en carré.
+
+# Generation de parc
+
+Parfois, on appercevait des quartiers entièrement vide, nous avons compléter ces quartiers par des parcs.
+
+# Generation des zones industriels
+
+Comme pour la génération
 
 # Rendu Graphique
 
-Pour afficher une grille avec le plus de mesh possible, nous avons optez pour une option disponible dans le moteur Unity, le mesh instancing.
-Nous avons trouvez cette solution dans cette [article](https://toqoz.fyi/thousands-of-meshes.html) qui explique le principe de base d'utilisation ainsi qu'une demo d'un code déjà fonctionnel. Nous avons pu adaptez ce code pour afficher des meshs avec plusieurs subMeshes. Cependant pour rester le plus performant possible nous sommes rester sur une solution avec des cubes (pour les captures d'écran).
+Pour afficher une grille avec le plus de mesh possible plusieurs options étaient disponible :
 
-Le principe de la méthode DrawMeshInstanceInrect est de charger le mesh sur le GPU afin de le l'instantier N fois dans un seul drawcall au lieu de faire appel à l'instantiation d'object d'Unity (ne fusionne pas les drawcalls d'un même object et plus lourd) pour seulement faire de l'affichage. Cependant, nous n'avons pas de physique sur ces objets. Cette méthode est un wrapper qui permet de ne pas toucher au GPU.
+* Instanciation de prefab unity ([pool d'objet](https://camo.githubusercontent.com/639c3d03006cd247cc06b3fcc35efb20c2400e311a08d76b15674149f0d4d766/68747470733a2f2f6d65646961322e67697068792e636f6d2f6d656469612f6c5162466a396c3754326c41757954576a4d2f67697068792e676966))
+![image](https://camo.githubusercontent.com/639c3d03006cd247cc06b3fcc35efb20c2400e311a08d76b15674149f0d4d766/68747470733a2f2f6d65646961322e67697068792e636f6d2f6d656469612f6c5162466a396c3754326c41757954576a4d2f67697068792e676966)
+* Utilisation des gizmos pour afficher des primitives simples
+![image](/images-rapport/drawWithGizmos.PNG "Affichage avec les gizmos")
+* Utilisation du GPU instancing de mesh ([image de l'article](https://toqoz.fyi/assets/2019_compute_movement.gif))
+![image](https://toqoz.fyi/assets/2019_compute_movement.gif)
 
-Exemple de structure contenant la couleur et la matrice de transformation de chacun des mesh qui doit être chargé
+
+La dernière options à été choisi. Un exemple de cette solution trouvé dans cette [article](https://toqoz.fyi/thousands-of-meshes.html) explique le principe de base d'utilisation ainsi qu'une demonstration d'un code déjà fonctionnel. Cependant pour rester le plus performant possible, nous sommes restés sur une solution avec des cubes en lieu et place de mesh avec plusieurs subMeshes.
+
+Le principe de la méthode DrawMeshInstanceInrect est de charger le mesh sur le GPU afin de le l'instancier N fois dans un seul drawcall au lieu de faire appel à l'instanciation d'objet d'Unity (ne fusionne pas les drawcalls d'un même objet et plus lourd) pour seulement faire de l'affichage. Cependant, nous n'avons pas de physique sur ces objets. Cette méthode est un wrapper qui permet de ne pas toucher directement au GPU.
+
+Cela passe par la création d'un [shader](city-building-placement/Assets/Material/Custom_InstancedIndirectColor.mat) qui va lire nos données envoyées (MeshProperties) afin d'afficher dans le moteur les meshs a leurs transformation et couleur respectives. Ce shader est utiliser via un material que nous passons à notre class de rendu.
+
+
+
+[Exemple de structure contenant la couleur et la matrice de transformation de chacun des mesh qui doit être chargé](city-building-placement\Assets\Scripts\Rendering\CityRenderer.cs#L8)
 ```cs
 public struct MeshProperties
 {
@@ -72,7 +111,7 @@ public struct MeshProperties
 }
 ```
 
-Ici un exemple d'initialisation des différent buffer pour chacun de nos batiments.
+[Ici un exemple d'initialisation des différents buffer pour chacun des bâtiments.](city-building-placement\Assets\Scripts\Rendering\CityRenderer.cs#L130)
 ```cs
 public void InitializeBuffers()
 {
@@ -127,7 +166,7 @@ public void InitializeBuffers()
 }
 ```
 
-Ici la fonction qui est appelé pour chaque type de batiments. (Update)
+[Ici la fonction d'affichage appelé pour chaque type de bâtiments.](city-building-placement\Assets\Scripts\Rendering\CityRenderer.cs#L55)
 ```cs
 foreach (var mesh in buildingMeshes)
 {
@@ -139,8 +178,6 @@ foreach (var mesh in buildingMeshes)
 }
 ```
 
-
-# Definition
 
 # Architecture
 
@@ -159,4 +196,6 @@ foreach (var mesh in buildingMeshes)
 
 # Résultats
 
-# Conclusion
+![image](/images-rapport/city.PNG "Exemple de city genere")
+![image](/images-rapport/withoutIndustrialZone.PNG "City without industrial zone")
+![image](/images-rapport/multipleCityGeneration.PNG "Multiple city")
