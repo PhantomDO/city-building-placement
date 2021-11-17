@@ -148,7 +148,7 @@ public class CityBuild : MonoBehaviour
     {
         for (float i = 0; i < city.superficyRadius; i+=0.1f)
         {
-            for (float theta = 0; theta < 2 * Mathf.PI; theta += 0.01f)
+            for (float theta = 0; theta < 2 * Mathf.PI; theta += 0.005f)
             {
                 int x = (int)(city.position.x + i * Mathf.Cos(theta));
                 int y = (int)(city.position.y + i * Mathf.Sin(theta));
@@ -180,7 +180,7 @@ public class CityBuild : MonoBehaviour
     private void CreateIndustrialZone(int posX, int posY)
     {
         // TODO : faire la zone
-        float radius = Random.Range(0.05f, 0.15f);
+        float radius = Random.Range(0.05f, 0.10f);
 
         for (float i = 0; i < radius; i+=0.01f)
         {
@@ -231,21 +231,16 @@ public class CityBuild : MonoBehaviour
                 //    MapCase[index].zone = Zone.Parc;
                 //}
                 if (MapCase[index].zone == Zone.Road || 
-                    MapCase[index].zone == Zone.Etang)
+                    MapCase[index].zone == Zone.Etang ||
+                    MapCase[index].zone == Zone.NaN)
                 {
                     continue;
                 }
-                
+
                 if (MapCase[index].zone == Zone.Industriel && MapCase[index].occupied == true)
                 {
                     MapCase[index].building = Building.Usine;
                     continue;
-                }
-                if (MapCase[index].occupied == false && MapCase[index].zone != Zone.NaN) //case dans la ville non occupée
-                {
-                    MapCase[index].building = Building.Parc;
-                    MapCase[index].zone = Zone.Parc;
-                    MapCase[index].occupied = true;
                 }
                 else if (count == neighborHoodSize * neighborHoodSize && MapCase[index].zone == Zone.CentreVille) //GrosImmeuble only in center
                 {
@@ -262,6 +257,12 @@ public class CityBuild : MonoBehaviour
                 else if (count >= 1)
                 {
                     MapCase[index].building = Building.Maison;
+                }
+                else if (count == 0)
+                {
+                    MapCase[index].building = Building.Parc;
+                    MapCase[index].zone = Zone.Parc;
+                    MapCase[index].occupied = true;
                 }
                 
             }
